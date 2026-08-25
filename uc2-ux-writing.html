@@ -49,22 +49,23 @@
   }
   .pill-label{ font-size:13px; font-weight:900; padding:6px 18px; border-radius:999px; letter-spacing:.04em; background:var(--g80); color:#fff; }
 
-  .back{ display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:600; color:var(--ink-3); text-decoration:none; align-self:flex-start; }
-  .back svg{ width:14px; height:14px; }
+  .back{ display:inline-flex; align-items:center; gap:6px; font-size:16px; font-weight:700; color:var(--ink-3); text-decoration:none; align-self:flex-start; }
+  .back svg{ width:18px; height:18px; }
   .sub{ font-size:13.5px; color:var(--ink-3); margin:2px 0 0; }
   .vote-hint{ margin-top:8px; padding:12px 16px; border-radius:14px; background:var(--brand-disable); border:1px solid var(--brand-line);
               font-size:12.5px; line-height:1.6; color:#5C4400; text-align:center; max-width:900px; width:100%; }
 
-  .poll-section{ display:flex; flex-direction:column; align-items:center; gap:12px; margin-top:8px; width:100%; }
+  .poll-section{ display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:8px; width:100%; }
+  .poll-item{ display:flex; flex-direction:column; align-items:center; gap:6px; width:100%; }
 
-  .poll-row{ position:relative; width:100%; max-width:360px; height:60px; border-radius:999px;
-             background:#fff; overflow:hidden; display:flex; align-items:center; cursor:pointer;
-             border:1.5px solid #D7D7DA; box-shadow:0 2px 6px rgba(0,0,0,.06); padding:0; font-family:inherit; text-align:left; }
-  .poll-row .fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--g100); border-radius:999px; transition:width .5s ease; }
-  .poll-row .chip{ position:relative; z-index:2; background:var(--g100); color:#fff; font-weight:800; font-size:13.5px;
-                    padding:9px 16px; border-radius:999px; margin-left:5px; white-space:nowrap; }
-  .poll-row .pct{ position:relative; z-index:2; margin-left:auto; margin-right:16px; font-weight:800; font-size:14px; color:var(--g100); display:none; }
-  .poll-row.voted{ cursor:default; }
+  .vote-btn{ width:100%; max-width:360px; height:52px; border-radius:12px; border:0; background:var(--brand);
+             color:var(--ink); font-family:inherit; font-size:15px; font-weight:800; cursor:pointer; }
+  .vote-btn:disabled{ opacity:.6; cursor:default; }
+  .vote-btn.picked{ background:var(--g100); color:#fff; }
+
+  .result-bar{ width:100%; max-width:360px; height:10px; border-radius:6px; background:var(--line); overflow:hidden; display:none; }
+  .result-bar > span{ display:block; height:100%; background:var(--brand); transition:width .3s ease; }
+  .result-pct{ font-size:12.5px; font-weight:700; color:var(--ink-2); display:none; }
 
 
   .phone{ position:relative; width:360px; height:800px; border-radius:0; overflow:hidden;
@@ -193,16 +194,16 @@
   </div>
 
   <div class="poll-section">
-    <button class="poll-row" data-vote="a" type="button">
-      <span class="fill"></span>
-      <span class="chip">A</span>
-      <span class="pct"></span>
-    </button>
-    <button class="poll-row" data-vote="b" type="button">
-      <span class="fill"></span>
-      <span class="chip">B</span>
-      <span class="pct"></span>
-    </button>
+    <div class="poll-item">
+      <button class="vote-btn" data-vote="a" type="button">이 화면이 더 좋아요</button>
+      <div class="result-bar" data-bar="a"><span></span></div>
+      <div class="result-pct" data-pct="a"></div>
+    </div>
+    <div class="poll-item">
+      <button class="vote-btn" data-vote="b" type="button">이 화면이 더 좋아요</button>
+      <div class="result-bar" data-bar="b"><span></span></div>
+      <div class="result-pct" data-pct="b"></div>
+    </div>
   </div>
 
   <div class="vote-hint" id="voteHint">둘 중 더 나은 화면을 골라 투표해보세요. 결과는 실시간으로 반영돼요.</div>
@@ -238,27 +239,28 @@
   function renderResults(result) {
     ['a', 'b'].forEach(function (choice) {
       var pct = result.pct[choice];
-      var row = document.querySelector('.poll-row[data-vote="' + choice + '"]');
-      row.querySelector('.fill').style.width = pct + '%';
-      var pctEl = row.querySelector('.pct');
+      var bar = document.querySelector('.result-bar[data-bar="' + choice + '"]');
+      var pctEl = document.querySelector('.result-pct[data-pct="' + choice + '"]');
+      bar.style.display = 'block';
       pctEl.style.display = 'block';
-      pctEl.textContent = pct + '%';
+      bar.querySelector('span').style.width = pct + '%';
+      pctEl.textContent = pct + '% (' + result[choice] + '표)';
     });
   }
 
-  function lockButtons() {
+  function lockButtons(picked) {
     ['a', 'b'].forEach(function (choice) {
-      var row = document.querySelector('.poll-row[data-vote="' + choice + '"]');
-      row.disabled = true;
-      row.classList.add('voted');
+      var btn = document.querySelector('.vote-btn[data-vote="' + choice + '"]');
+      btn.disabled = true;
+      btn.classList.toggle('picked', choice === picked);
+      btn.textContent = choice === picked ? '투표 완료' : '이 화면이 더 좋아요';
     });
   }
 
-  document.querySelectorAll('.poll-row').forEach(function (row) {
-    row.addEventListener('click', async function () {
-      if (row.classList.contains('voted')) return;
-      var choice = row.getAttribute('data-vote');
-      lockButtons();
+  document.querySelectorAll('.vote-btn').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var choice = btn.getAttribute('data-vote');
+      lockButtons(choice);
       hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
       await castVote(POLL_ID, choice);
     });
@@ -266,7 +268,7 @@
 
   watchResults(POLL_ID, function (result) {
     if (hasVoted(POLL_ID)) {
-      lockButtons();
+      lockButtons(myChoice(POLL_ID));
       hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
       renderResults(result);
     }
