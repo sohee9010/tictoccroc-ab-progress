@@ -35,6 +35,18 @@
 
   .compare-row{ display:flex; gap:24px; flex-wrap:wrap; justify-content:center; width:100%; }
   .col{ display:flex; flex-direction:column; align-items:center; gap:12px; }
+
+  .mobile-tabs{ display:none; gap:8px; margin-bottom:2px; width:100%; max-width:400px; }
+  .mobile-tab{ flex:1; height:40px; border-radius:10px; border:1px solid var(--line); background:#fff;
+               font-family:inherit; font-size:14px; font-weight:800; color:var(--ink-3); cursor:pointer; }
+  .mobile-tab.active{ background:var(--g100); color:#fff; border-color:var(--g100); }
+
+  @media (max-width:780px){
+    .mobile-tabs{ display:flex; }
+    .compare-row .col{ display:none; }
+    .compare-row.show-a .col[data-variant="a"]{ display:flex; }
+    .compare-row.show-b .col[data-variant="b"]{ display:flex; }
+  }
   .pill-label{ font-size:13px; font-weight:900; padding:6px 18px; border-radius:999px; letter-spacing:.04em; background:var(--g80); color:#fff; }
 
   .back{ display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:600; color:var(--ink-3); text-decoration:none; align-self:flex-start; }
@@ -108,7 +120,12 @@
     <p class="sub">두 화면 중 어떤 쪽이 더 나은지 비교해보세요.</p>
   </div>
 
-  <div class="compare-row">
+  <div class="mobile-tabs" id="mobileTabs">
+    <button class="mobile-tab active" data-show="a" type="button">A</button>
+    <button class="mobile-tab" data-show="b" type="button">B</button>
+  </div>
+
+  <div class="compare-row show-a">
 
     <div class="col" data-variant="a">
       <span class="pill-label" data-slot="left">A</span>
@@ -187,6 +204,19 @@
     var cols = row.querySelectorAll(':scope > .col');
     if (cols.length === 2) row.insertBefore(cols[1], cols[0]);
   }
+})();
+(function(){
+  var row = document.querySelector('.compare-row');
+  document.querySelectorAll('.mobile-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var show = tab.getAttribute('data-show');
+      row.classList.remove('show-a', 'show-b');
+      row.classList.add('show-' + show);
+      document.querySelectorAll('.mobile-tab').forEach(function (t) {
+        t.classList.toggle('active', t === tab);
+      });
+    });
+  });
 })();
 </script>
 <script type="module">

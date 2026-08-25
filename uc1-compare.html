@@ -19,7 +19,19 @@
   .sub{ font-size:13.5px; color:var(--ink-3); margin:0 0 22px; }
 
   .compare{ display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
-  @media (max-width:900px){ .compare{ grid-template-columns:1fr; } }
+
+  .mobile-tabs{ display:none; gap:8px; margin-bottom:14px; }
+  .mobile-tab{ flex:1; height:40px; border-radius:10px; border:1px solid var(--line); background:#fff;
+               font-family:inherit; font-size:14px; font-weight:800; color:var(--ink-3); cursor:pointer; }
+  .mobile-tab.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  @media (max-width:900px){
+    .compare{ grid-template-columns:1fr; }
+    .mobile-tabs{ display:flex; }
+    .compare .col{ display:none; }
+    .compare.show-left .col[data-col="left"]{ display:flex; }
+    .compare.show-right .col[data-col="right"]{ display:flex; }
+  }
 
   .col{ display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
   .col-badge{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
@@ -53,15 +65,20 @@
     <h1>UC1 · 체험 진행 순서</h1>
     <p class="sub">두 화면 중 어떤 쪽이 더 나은지 비교해보고, 더 나은 쪽에 투표해보세요.</p>
 
-    <div class="compare" id="compareGrid">
-      <div class="col">
+    <div class="mobile-tabs" id="mobileTabs">
+      <button class="mobile-tab active" data-show="left" type="button">A</button>
+      <button class="mobile-tab" data-show="right" type="button">B</button>
+    </div>
+
+    <div class="compare show-left" id="compareGrid">
+      <div class="col" data-col="left">
         <span class="col-badge" data-slot="left">A</span>
         <div class="frame-wrap"><iframe data-slot-src="left" title="UC1 화면 A"></iframe></div>
         <button class="vote-btn" data-vote="left" type="button">이 화면이 더 좋아요</button>
         <div class="result-bar" data-bar="left"><span></span></div>
         <div class="result-pct" data-pct="left"></div>
       </div>
-      <div class="col">
+      <div class="col" data-col="right">
         <span class="col-badge" data-slot="right">B</span>
         <div class="frame-wrap"><iframe data-slot-src="right" title="UC1 화면 B"></iframe></div>
         <button class="vote-btn" data-vote="right" type="button">이 화면이 더 좋아요</button>
@@ -118,6 +135,18 @@
         lockButtons(slot);
         hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
         await castVote(POLL_ID, choice);
+      });
+    });
+
+    var grid = document.getElementById('compareGrid');
+    document.querySelectorAll('.mobile-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var show = tab.getAttribute('data-show');
+        grid.classList.remove('show-left', 'show-right');
+        grid.classList.add('show-' + show);
+        document.querySelectorAll('.mobile-tab').forEach(function (t) {
+          t.classList.toggle('active', t === tab);
+        });
       });
     });
 
