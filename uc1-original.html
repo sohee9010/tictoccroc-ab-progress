@@ -58,7 +58,7 @@
           font-family:var(--sans); letter-spacing:-0.32px; flex:0 0 auto; }
   @media (max-width:420px){ .phone{ width:100%; max-width:380px; height:760px; } }
 
-  .scroller{ position:absolute; inset:0 0 76px 0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .scroller{ position:absolute; inset:0 0 76px 0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
   .scroller::-webkit-scrollbar{ width:0; }
 
   .navbar{ height:52px; display:flex; align-items:center; justify-content:space-between;
