@@ -195,12 +195,12 @@
 
   <div class="poll-section">
     <div class="poll-item">
-      <button class="vote-btn" data-vote="a" type="button">이 화면이 더 좋아요</button>
+      <button class="vote-btn" data-vote="a" type="button">A 화면이 더 좋아요</button>
       <div class="result-bar" data-bar="a"><span></span></div>
       <div class="result-pct" data-pct="a"></div>
     </div>
     <div class="poll-item">
-      <button class="vote-btn" data-vote="b" type="button">이 화면이 더 좋아요</button>
+      <button class="vote-btn" data-vote="b" type="button">B 화면이 더 좋아요</button>
       <div class="result-bar" data-bar="b"><span></span></div>
       <div class="result-pct" data-pct="b"></div>
     </div>
@@ -253,7 +253,8 @@
       var btn = document.querySelector('.vote-btn[data-vote="' + choice + '"]');
       btn.disabled = true;
       btn.classList.toggle('picked', choice === picked);
-      btn.textContent = choice === picked ? '투표 완료' : '이 화면이 더 좋아요';
+      var label = choice.toUpperCase();
+      btn.textContent = choice === picked ? label + ' · 투표 완료' : label + ' 화면이 더 좋아요';
     });
   }
 
