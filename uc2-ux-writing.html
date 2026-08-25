@@ -46,6 +46,7 @@
     .compare-row .col{ display:none; }
     .compare-row.show-a .col[data-variant="a"]{ display:flex; }
     .compare-row.show-b .col[data-variant="b"]{ display:flex; }
+    .poll-section{ flex-direction:column; }
   }
   .pill-label{ font-size:13px; font-weight:900; padding:6px 18px; border-radius:999px; letter-spacing:.04em; background:var(--g80); color:#fff; }
 
@@ -55,7 +56,8 @@
   .vote-hint{ margin-top:8px; padding:12px 16px; border-radius:14px; background:var(--brand-disable); border:1px solid var(--brand-line);
               font-size:12.5px; line-height:1.6; color:#5C4400; text-align:center; max-width:900px; width:100%; }
 
-  .poll-section{ display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:8px; width:100%; }
+  .poll-section{ display:flex; flex-direction:row; justify-content:center; align-items:center; gap:16px; margin-top:8px; width:100%; }
+  .poll-section .poll-item{ flex:1; max-width:360px; }
   .poll-item{ display:flex; flex-direction:column; align-items:center; gap:6px; width:100%; }
 
   .vote-btn{ width:100%; max-width:360px; height:52px; border-radius:12px; border:0; background:var(--brand);

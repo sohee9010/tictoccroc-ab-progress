@@ -31,6 +31,7 @@
     .compare .col{ display:none; }
     .compare.show-left .col[data-col="left"]{ display:flex; }
     .compare.show-right .col[data-col="right"]{ display:flex; }
+    .poll-section{ flex-direction:column; }
   }
 
   .col{ display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
@@ -41,7 +42,8 @@
   .frame-wrap iframe{ width:100%; height:100%; border:0; display:block; }
   @media (max-width:420px){ .frame-wrap{ height:760px; } }
 
-  .poll-section{ display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:20px; width:100%; }
+  .poll-section{ display:flex; flex-direction:row; justify-content:center; align-items:center; gap:16px; margin-top:20px; width:100%; }
+  .poll-section .poll-item{ flex:1; max-width:380px; }
   .poll-item{ display:flex; flex-direction:column; align-items:center; gap:6px; width:100%; }
 
   .vote-btn{ width:100%; max-width:380px; height:52px; border-radius:12px; border:0; background:var(--brand);
