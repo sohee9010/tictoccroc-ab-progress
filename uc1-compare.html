@@ -42,14 +42,14 @@
   .frame-wrap iframe{ width:100%; height:100%; border:0; display:block; }
   @media (max-width:420px){ .frame-wrap{ height:760px; } }
 
-  .vote-btn{ width:100%; max-width:380px; height:48px; border-radius:12px; border:0; background:var(--brand);
-             color:var(--ink); font-family:inherit; font-size:14.5px; font-weight:800; cursor:pointer; }
-  .vote-btn:disabled{ opacity:.6; cursor:default; }
-  .vote-btn.picked{ background:var(--ink); color:#fff; }
-
-  .result-bar{ width:100%; max-width:380px; height:10px; border-radius:6px; background:var(--line); overflow:hidden; display:none; }
-  .result-bar > span{ display:block; height:100%; background:var(--brand); transition:width .3s ease; }
-  .result-pct{ font-size:12.5px; font-weight:700; color:var(--ink-2); display:none; }
+  .poll-row{ position:relative; width:100%; max-width:380px; height:52px; border-radius:999px;
+             background:#F0F0F0; overflow:hidden; display:flex; align-items:center; cursor:pointer;
+             border:0; padding:0; font-family:inherit; text-align:left; }
+  .poll-row .fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--ink); border-radius:999px; transition:width .5s ease; }
+  .poll-row .chip{ position:relative; z-index:2; background:var(--ink); color:#fff; font-weight:800; font-size:13.5px;
+                    padding:9px 16px; border-radius:999px; margin-left:5px; white-space:nowrap; }
+  .poll-row .pct{ position:relative; z-index:2; margin-left:auto; margin-right:16px; font-weight:800; font-size:14px; color:var(--ink); display:none; }
+  .poll-row.voted{ cursor:default; }
 
   .vote-hint{ margin-top:16px; padding:12px 16px; border-radius:14px; background:var(--brand-bg); border:1px solid #FFEA80;
               font-size:12.5px; line-height:1.6; color:#5C4400; text-align:center; }
@@ -74,16 +74,20 @@
       <div class="col" data-col="left">
         <span class="col-badge" data-slot="left">A</span>
         <div class="frame-wrap"><iframe data-slot-src="left" title="UC1 화면 A"></iframe></div>
-        <button class="vote-btn" data-vote="left" type="button">이 화면이 더 좋아요</button>
-        <div class="result-bar" data-bar="left"><span></span></div>
-        <div class="result-pct" data-pct="left"></div>
+        <button class="poll-row" data-vote="left" type="button">
+          <span class="fill"></span>
+          <span class="chip">A</span>
+          <span class="pct"></span>
+        </button>
       </div>
       <div class="col" data-col="right">
         <span class="col-badge" data-slot="right">B</span>
         <div class="frame-wrap"><iframe data-slot-src="right" title="UC1 화면 B"></iframe></div>
-        <button class="vote-btn" data-vote="right" type="button">이 화면이 더 좋아요</button>
-        <div class="result-bar" data-bar="right"><span></span></div>
-        <div class="result-pct" data-pct="right"></div>
+        <button class="poll-row" data-vote="right" type="button">
+          <span class="fill"></span>
+          <span class="chip">B</span>
+          <span class="pct"></span>
+        </button>
       </div>
     </div>
 
@@ -110,29 +114,28 @@
       ['left', 'right'].forEach(function (slot) {
         var choice = slotChoice[slot];
         var pct = result.pct[choice];
-        var bar = document.querySelector('.result-bar[data-bar="' + slot + '"]');
-        var pctEl = document.querySelector('.result-pct[data-pct="' + slot + '"]');
-        bar.style.display = 'block';
+        var row = document.querySelector('.poll-row[data-vote="' + slot + '"]');
+        row.querySelector('.fill').style.width = pct + '%';
+        var pctEl = row.querySelector('.pct');
         pctEl.style.display = 'block';
-        bar.querySelector('span').style.width = pct + '%';
-        pctEl.textContent = pct + '% (' + result[choice] + '표)';
+        pctEl.textContent = pct + '%';
       });
     }
 
-    function lockButtons(pickedSlot) {
+    function lockButtons() {
       ['left', 'right'].forEach(function (slot) {
-        var btn = document.querySelector('.vote-btn[data-vote="' + slot + '"]');
-        btn.disabled = true;
-        btn.classList.toggle('picked', slot === pickedSlot);
-        btn.textContent = slot === pickedSlot ? '투표 완료' : '이 화면이 더 좋아요';
+        var row = document.querySelector('.poll-row[data-vote="' + slot + '"]');
+        row.disabled = true;
+        row.classList.add('voted');
       });
     }
 
-    document.querySelectorAll('.vote-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        var slot = btn.getAttribute('data-vote');
+    document.querySelectorAll('.poll-row').forEach(function (row) {
+      row.addEventListener('click', async function () {
+        if (row.classList.contains('voted')) return;
+        var slot = row.getAttribute('data-vote');
         var choice = slotChoice[slot];
-        lockButtons(slot);
+        lockButtons();
         hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
         await castVote(POLL_ID, choice);
       });
@@ -152,9 +155,7 @@
 
     watchResults(POLL_ID, function (result) {
       if (hasVoted(POLL_ID)) {
-        var choice = myChoice(POLL_ID);
-        var pickedSlot = slotChoice.left === choice ? 'left' : 'right';
-        lockButtons(pickedSlot);
+        lockButtons();
         hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
         renderResults(result);
       }

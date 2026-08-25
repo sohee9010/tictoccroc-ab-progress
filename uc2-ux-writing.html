@@ -55,13 +55,14 @@
   .vote-hint{ margin-top:8px; padding:12px 16px; border-radius:14px; background:var(--brand-disable); border:1px solid var(--brand-line);
               font-size:12.5px; line-height:1.6; color:#5C4400; text-align:center; max-width:900px; width:100%; }
 
-  .vote-btn{ width:100%; max-width:360px; height:48px; border-radius:12px; border:0; background:var(--brand);
-             color:var(--ink); font-family:inherit; font-size:14.5px; font-weight:800; cursor:pointer; }
-  .vote-btn:disabled{ opacity:.6; cursor:default; }
-  .vote-btn.picked{ background:var(--ink); color:#fff; }
-  .result-bar{ width:100%; max-width:360px; height:10px; border-radius:6px; background:var(--line); overflow:hidden; display:none; }
-  .result-bar > span{ display:block; height:100%; background:var(--brand); transition:width .3s ease; }
-  .result-pct{ font-size:12.5px; font-weight:700; color:var(--ink-2); display:none; }
+  .poll-row{ position:relative; width:100%; max-width:360px; height:52px; border-radius:999px;
+             background:#F0F0F0; overflow:hidden; display:flex; align-items:center; cursor:pointer;
+             border:0; padding:0; font-family:inherit; text-align:left; }
+  .poll-row .fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--g100); border-radius:999px; transition:width .5s ease; }
+  .poll-row .chip{ position:relative; z-index:2; background:var(--g100); color:#fff; font-weight:800; font-size:13.5px;
+                    padding:9px 16px; border-radius:999px; margin-left:5px; white-space:nowrap; }
+  .poll-row .pct{ position:relative; z-index:2; margin-left:auto; margin-right:16px; font-weight:800; font-size:14px; color:var(--g100); display:none; }
+  .poll-row.voted{ cursor:default; }
 
 
   .phone{ position:relative; width:360px; height:800px; border-radius:0; overflow:hidden;
@@ -143,9 +144,11 @@
           <button class="btn-cta" type="button">예약하기</button>
         </div>
       </div>
-      <button class="vote-btn" data-vote="a" type="button">이 화면이 더 좋아요</button>
-      <div class="result-bar" data-bar="a"><span></span></div>
-      <div class="result-pct" data-pct="a"></div>
+      <button class="poll-row" data-vote="a" type="button">
+        <span class="fill"></span>
+        <span class="chip">A</span>
+        <span class="pct"></span>
+      </button>
     </div>
 
     <div class="col" data-variant="b">
@@ -188,9 +191,11 @@
           <button class="btn-cta" type="button">예약하기</button>
         </div>
       </div>
-      <button class="vote-btn" data-vote="b" type="button">이 화면이 더 좋아요</button>
-      <div class="result-bar" data-bar="b"><span></span></div>
-      <div class="result-pct" data-pct="b"></div>
+      <button class="poll-row" data-vote="b" type="button">
+        <span class="fill"></span>
+        <span class="chip">B</span>
+        <span class="pct"></span>
+      </button>
     </div>
 
   </div>
@@ -228,28 +233,27 @@
   function renderResults(result) {
     ['a', 'b'].forEach(function (choice) {
       var pct = result.pct[choice];
-      var bar = document.querySelector('.result-bar[data-bar="' + choice + '"]');
-      var pctEl = document.querySelector('.result-pct[data-pct="' + choice + '"]');
-      bar.style.display = 'block';
+      var row = document.querySelector('.poll-row[data-vote="' + choice + '"]');
+      row.querySelector('.fill').style.width = pct + '%';
+      var pctEl = row.querySelector('.pct');
       pctEl.style.display = 'block';
-      bar.querySelector('span').style.width = pct + '%';
-      pctEl.textContent = pct + '% (' + result[choice] + '표)';
+      pctEl.textContent = pct + '%';
     });
   }
 
-  function lockButtons(picked) {
+  function lockButtons() {
     ['a', 'b'].forEach(function (choice) {
-      var btn = document.querySelector('.vote-btn[data-vote="' + choice + '"]');
-      btn.disabled = true;
-      btn.classList.toggle('picked', choice === picked);
-      btn.textContent = choice === picked ? '투표 완료' : '이 화면이 더 좋아요';
+      var row = document.querySelector('.poll-row[data-vote="' + choice + '"]');
+      row.disabled = true;
+      row.classList.add('voted');
     });
   }
 
-  document.querySelectorAll('.vote-btn').forEach(function (btn) {
-    btn.addEventListener('click', async function () {
-      var choice = btn.getAttribute('data-vote');
-      lockButtons(choice);
+  document.querySelectorAll('.poll-row').forEach(function (row) {
+    row.addEventListener('click', async function () {
+      if (row.classList.contains('voted')) return;
+      var choice = row.getAttribute('data-vote');
+      lockButtons();
       hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
       await castVote(POLL_ID, choice);
     });
@@ -257,7 +261,7 @@
 
   watchResults(POLL_ID, function (result) {
     if (hasVoted(POLL_ID)) {
-      lockButtons(myChoice(POLL_ID));
+      lockButtons();
       hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
       renderResults(result);
     }
