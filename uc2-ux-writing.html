@@ -46,7 +46,6 @@
     .compare-row .col{ display:none; }
     .compare-row.show-a .col[data-variant="a"]{ display:flex; }
     .compare-row.show-b .col[data-variant="b"]{ display:flex; }
-    .poll-section{ flex-direction:column; }
   }
   .pill-label{ font-size:13px; font-weight:900; padding:6px 18px; border-radius:999px; letter-spacing:.04em; background:var(--g80); color:#fff; }
 
@@ -59,6 +58,7 @@
   .poll-section{ display:flex; flex-direction:row; justify-content:center; align-items:center; gap:16px; margin-top:8px; width:100%; }
   .poll-section .poll-item{ flex:1; max-width:360px; }
   .poll-item{ display:flex; flex-direction:column; align-items:center; gap:6px; width:100%; }
+  @media (max-width:780px){ .poll-section{ flex-direction:column; } }
 
   .vote-btn{ width:100%; max-width:360px; height:52px; border-radius:12px; border:0; background:var(--brand);
              color:var(--ink); font-family:inherit; font-size:15px; font-weight:800; cursor:pointer; }
