@@ -1,0 +1,787 @@
+<title>재방문 유도 BottomSheet 와이어프레임 · TicTocCroc</title>
+<style>
+  /* ============================================================
+     TOKENS — ticticcroc-design-tokens.json (parent theme)
+     ============================================================ */
+  :root{
+    /* grey */
+    --g10:#F2F2F3; --g20:#E5E5E6; --g30:#D7D7DA; --g40:#BDBDC1;
+    --g50:#A3A3A9; --g60:#7B7B84; --g70:#62626A; --g80:#4A4A4F;
+    --g90:#313135; --g100:#19191A; --white:#FFFFFF;
+    /* brand (parent) */
+    --brand:#FFC800; --brand-bg:#FFF7CC; --brand-line:#FFD500;
+    --brand-press:#F5B400; --brand-text:#EBA000; --brand-disable:#FFFBE6;
+    /* annotation layer */
+    --blue:#148ABD; --blue-solid:#26CAE8; --blue-10:#DFF7FC;
+    /* page surface */
+    --bg:#F7F7F8; --surface:#FFFFFF; --sunken:#FAFAFC;
+    --ink:#19191A; --ink-2:#4A4A4F; --ink-3:#7B7B84; --ink-4:#A3A3A9;
+    --line:#E5E5E6; --line-soft:#F2F2F3;
+    --accent:#EBA000;
+    --elev1:0px 2px 10px 0px rgba(0,0,0,0.08);
+    --elev2:0px 4px 12px 0px rgba(0,0,0,0.08);
+    --elev4:0px 0px 16px 0px rgba(0,0,0,0.20);
+    --sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Segoe UI','Noto Sans KR','Malgun Gothic',sans-serif;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#141416; --surface:#1F1F22; --sunken:#19191A;
+      --ink:#F2F2F3; --ink-2:#D7D7DA; --ink-3:#A3A3A9; --ink-4:#7B7B84;
+      --line:#313135; --line-soft:#26262A;
+      --accent:#FFC800; --blue:#54D6ED;
+      --elev1:0px 2px 10px 0px rgba(0,0,0,0.40);
+      --elev2:0px 4px 12px 0px rgba(0,0,0,0.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141416; --surface:#1F1F22; --sunken:#19191A;
+    --ink:#F2F2F3; --ink-2:#D7D7DA; --ink-3:#A3A3A9; --ink-4:#7B7B84;
+    --line:#313135; --line-soft:#26262A;
+    --accent:#FFC800; --blue:#54D6ED;
+    --elev1:0px 2px 10px 0px rgba(0,0,0,0.40);
+    --elev2:0px 4px 12px 0px rgba(0,0,0,0.45);
+  }
+  :root[data-theme="light"]{
+    --bg:#F7F7F8; --surface:#FFFFFF; --sunken:#FAFAFC;
+    --ink:#19191A; --ink-2:#4A4A4F; --ink-3:#7B7B84; --ink-4:#A3A3A9;
+    --line:#E5E5E6; --line-soft:#F2F2F3;
+    --accent:#EBA000; --blue:#148ABD;
+    --elev1:0px 2px 10px 0px rgba(0,0,0,0.08);
+    --elev2:0px 4px 12px 0px rgba(0,0,0,0.08);
+  }
+
+  /* ============================================================
+     PAGE
+     ============================================================ */
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--sans); letter-spacing:-0.32px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:1120px; margin:0 auto; padding:56px 24px 96px; }
+  @media (max-width:640px){ .wrap{ padding:36px 18px 64px; } }
+
+  /* masthead */
+  .mast{ display:flex; flex-direction:column; gap:18px; padding-bottom:32px;
+         border-bottom:1px solid var(--line); }
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+            text-transform:uppercase; color:var(--ink-3); }
+  .mast h1{ font-size:clamp(30px,5vw,46px); font-weight:700; line-height:1.12;
+            letter-spacing:-0.035em; text-wrap:balance; margin:0; }
+  .mast h1 em{ font-style:normal; color:var(--accent); }
+  .lede{ font-size:16px; line-height:1.65; color:var(--ink-2); max-width:62ch; margin:0; }
+  .meta{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{ font-family:var(--mono); font-size:11px; line-height:1; padding:7px 10px;
+        border:1px solid var(--line); border-radius:6px; color:var(--ink-3);
+        background:var(--surface); }
+  .tag.on{ border-color:var(--accent); color:var(--accent); }
+
+  /* sections */
+  section{ padding-top:64px; }
+  .shead{ display:flex; align-items:baseline; gap:14px; margin-bottom:6px; }
+  .shead h2{ font-size:23px; font-weight:700; letter-spacing:-0.03em; margin:0; }
+  .shead .eyebrow{ flex:0 0 auto; }
+  .snote{ font-size:14.5px; line-height:1.65; color:var(--ink-3); max-width:66ch;
+          margin:0 0 26px; }
+  .rule{ height:1px; background:var(--line); margin-bottom:22px; }
+
+  /* ============================================================
+     PHONE SHELL — always light; it depicts the actual app
+     ============================================================ */
+  .stage{ display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+          gap:28px; align-items:start; }
+  .plate{ background:var(--surface); border:1px solid var(--line); border-radius:14px;
+          padding:24px; display:flex; flex-direction:column; gap:16px; box-shadow:var(--elev1); }
+  .plate-hd{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .plate-hd b{ font-size:14px; font-weight:700; letter-spacing:-0.02em; }
+  .plate-hd span{ font-family:var(--mono); font-size:10.5px; color:var(--ink-4); }
+  .phone-hold{ display:flex; justify-content:center; }
+
+  .phone{ position:relative; width:340px; height:660px; border-radius:26px;
+          overflow:hidden; background:#F7F7F8; border:1px solid #E5E5E6;
+          font-family:var(--sans); letter-spacing:-0.32px; flex:0 0 auto; }
+  @media (max-width:400px){ .phone{ width:290px; height:600px; border-radius:22px; } }
+
+  /* backdrop app screen */
+  .scr{ position:absolute; inset:0; padding:0 16px; display:flex;
+        flex-direction:column; gap:12px; }
+  .statusbar{ height:34px; display:flex; align-items:center; justify-content:space-between;
+              font-size:11px; font-weight:600; color:#19191A; padding:0 4px; }
+  .appbar{ height:40px; display:flex; align-items:center; justify-content:space-between; }
+  .appbar b{ font-size:18px; font-weight:700; color:#19191A; }
+  .sk{ background:#E5E5E6; border-radius:6px; }
+  .sk-card{ background:#FFFFFF; border-radius:12px; height:96px; padding:14px;
+            display:flex; flex-direction:column; gap:9px; }
+  .dim{ position:absolute; inset:0; background:rgba(0,0,0,0.60); }
+
+  /* ============================================================
+     RENDERED SHEET (token-applied)
+     ============================================================ */
+  .sheet{ position:absolute; left:0; right:0; bottom:0; background:#FFFFFF;
+          border-radius:20px 20px 0 0; box-shadow:0px 0px 16px 0px rgba(0,0,0,0.20);
+          display:flex; flex-direction:column; }
+  .handle-row{ padding:8px 0 4px; display:flex; justify-content:center; }
+  .handle{ width:40px; height:4px; border-radius:2px; background:#D7D7DA; }
+
+  .s-title{ padding:16px 24px 0; display:flex; flex-direction:column; gap:8px; }
+  .s-title h3{ margin:0; font-size:20px; font-weight:700; line-height:1.2;
+               color:#19191A; letter-spacing:-0.32px; }
+  .s-title p{ margin:0; font-size:15px; font-weight:400; line-height:1.5;
+              color:#62626A; letter-spacing:-0.32px; }
+
+  .s-content{ padding:20px 24px 0; display:flex; flex-direction:column; gap:16px; }
+  .coupon{ background:#FFF7CC; border:1px solid #FFD500; border-radius:12px;
+           padding:18px 20px; display:flex; align-items:center; justify-content:space-between;
+           gap:12px; }
+  .coupon .amt{ display:flex; flex-direction:column; gap:4px; }
+  .coupon .amt b{ font-size:34px; font-weight:700; line-height:1.2; color:#EBA000;
+                  letter-spacing:-0.04em; font-variant-numeric:tabular-nums; }
+  .coupon .amt span{ font-size:13px; font-weight:500; line-height:1.2; color:#4A4A4F; }
+  .coupon .exp{ font-size:11px; font-weight:500; line-height:1.3; color:#7B7B84;
+                text-align:right; white-space:nowrap; }
+  .picks{ display:flex; flex-direction:column; gap:8px; }
+  .picks > span{ font-size:12px; font-weight:500; line-height:1.2; color:#7B7B84; }
+  .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{ font-size:13px; font-weight:500; line-height:1; padding:8px 12px;
+         border-radius:999px; color:#313135; }
+
+  .s-action{ padding:20px 24px 8px; display:flex; flex-direction:column; gap:4px; }
+  .btn{ width:100%; height:52px; border-radius:26px; border:0; cursor:pointer;
+        font-family:inherit; font-size:16px; font-weight:700; letter-spacing:-0.32px;
+        display:flex; align-items:center; justify-content:center; }
+  .btn-filled{ background:#FFC800; color:#19191A; }
+  .btn-filled:active{ background:#F5B400; }
+  .btn-text{ background:transparent; color:#7B7B84; font-weight:500; font-size:15px;
+             height:48px; }
+  .btn:focus-visible{ outline:2px solid #148ABD; outline-offset:2px; }
+  .navbar{ height:22px; display:flex; align-items:center; justify-content:center;
+           background:#FFFFFF; }
+  .navbar i{ display:block; width:108px; height:4px; border-radius:2px; background:#19191A; }
+
+  /* slide-in replay */
+  .sheet.play{ animation:sheetUp 200ms cubic-bezier(.2,0,0,1) both; }
+  .dim.play{ animation:dimIn 200ms linear both; }
+  @keyframes sheetUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
+  @keyframes dimIn{ from{ opacity:0; } to{ opacity:1; } }
+  @media (prefers-reduced-motion:reduce){
+    .sheet.play{ animation:dimIn 200ms linear both; }
+  }
+  .replay{ align-self:flex-start; font-family:var(--mono); font-size:11px;
+           padding:8px 12px; border-radius:8px; border:1px solid var(--line);
+           background:var(--sunken); color:var(--ink-2); cursor:pointer; }
+  .replay:hover{ border-color:var(--accent); color:var(--accent); }
+  .replay:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  /* ============================================================
+     WIREFRAME (structure) VIEW
+     ============================================================ */
+  .wf .sheet{ box-shadow:none; border:1px dashed rgba(20,138,189,.55);
+              border-bottom:0; background:#FFFFFF; }
+  .wf .dim{ background:rgba(0,0,0,.28); }
+  .wf-slot{ position:relative; border:1px dashed rgba(20,138,189,.45);
+            border-radius:6px; margin:6px 10px; }
+  .wf-tag{ position:absolute; top:-8px; left:8px; background:#FFFFFF; padding:0 5px;
+           font-family:var(--mono); font-size:9px; letter-spacing:.06em;
+           color:#148ABD; text-transform:uppercase; }
+  .num{ position:absolute; top:6px; right:6px; width:17px; height:17px; border-radius:50%;
+        background:#148ABD; color:#fff; font-family:var(--mono); font-size:10px;
+        display:flex; align-items:center; justify-content:center; z-index:2; }
+  .num.out{ background:#19191A; }
+  .bar{ background:#D7D7DA; border-radius:3px; height:10px; }
+  .bar.lt{ background:#E5E5E6; }
+  .bar.tall{ height:16px; }
+  .wf-stack{ display:flex; flex-direction:column; gap:8px; padding:16px 14px; }
+  .wf-box{ border:1px dashed rgba(20,138,189,.4); border-radius:8px; background:#FAFAFC; }
+  .dimtag{ position:absolute; top:120px; left:14px; font-family:var(--mono);
+           font-size:9.5px; color:#FFFFFF; background:rgba(0,0,0,.45);
+           border:1px dashed rgba(255,255,255,.5); padding:4px 7px; border-radius:5px; }
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+  .tscroll{ overflow-x:auto; border:1px solid var(--line); border-radius:12px;
+            background:var(--surface); }
+  table{ width:100%; border-collapse:collapse; min-width:660px; }
+  th,td{ text-align:left; padding:13px 16px; border-bottom:1px solid var(--line-soft);
+         font-size:13.5px; line-height:1.55; vertical-align:top; }
+  th{ font-size:11px; font-family:var(--mono); letter-spacing:.1em; text-transform:uppercase;
+      color:var(--ink-3); background:var(--sunken); border-bottom:1px solid var(--line);
+      white-space:nowrap; }
+  tbody tr:last-child td{ border-bottom:0; }
+  td.n{ font-family:var(--mono); color:var(--blue); font-size:12px; width:34px; }
+  td b{ font-weight:700; }
+  code{ font-family:var(--mono); font-size:12px; background:var(--sunken);
+        border:1px solid var(--line); border-radius:4px; padding:1.5px 5px;
+        color:var(--ink-2); white-space:nowrap; }
+  .sw{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px;
+       vertical-align:-1px; border:1px solid rgba(0,0,0,.12); }
+
+  /* ============================================================
+     VARIANTS
+     ============================================================ */
+  .vgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+  .vcard{ border:1px solid var(--line); border-radius:14px; background:var(--surface);
+          overflow:hidden; display:flex; flex-direction:column; }
+  .vcard-hd{ padding:16px 18px 14px; display:flex; flex-direction:column; gap:5px;
+             border-bottom:1px solid var(--line-soft); }
+  .vcard-hd .eyebrow{ color:var(--blue); }
+  .vcard-hd b{ font-size:15px; font-weight:700; letter-spacing:-0.025em; }
+  .vcard-hd p{ margin:0; font-size:12.5px; line-height:1.55; color:var(--ink-3); }
+  .vsheet{ background:#F2F2F3; padding:18px 18px 0; display:flex; justify-content:center; }
+  .mini{ width:100%; max-width:300px; background:#fff; border-radius:16px 16px 0 0;
+         box-shadow:0px 4px 12px 0px rgba(0,0,0,0.08); font-family:var(--sans);
+         letter-spacing:-0.32px; }
+
+  .note{ background:var(--sunken); border:1px solid var(--line); border-left:3px solid var(--accent);
+         border-radius:0 10px 10px 0; padding:16px 18px; font-size:13.5px; line-height:1.7;
+         color:var(--ink-2); }
+  .note b{ color:var(--ink); }
+
+  ul.clean{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px; }
+  ul.clean li{ font-size:14px; line-height:1.65; color:var(--ink-2); padding-left:18px;
+               position:relative; }
+  ul.clean li::before{ content:''; position:absolute; left:0; top:9px; width:6px; height:6px;
+                       border-radius:50%; background:var(--accent); }
+  ul.clean li b{ color:var(--ink); font-weight:700; }
+
+  .cols2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; }
+  .panel{ border:1px solid var(--line); border-radius:12px; background:var(--surface);
+          padding:20px; display:flex; flex-direction:column; gap:12px; }
+  .panel h4{ margin:0; font-size:14px; font-weight:700; letter-spacing:-0.02em; }
+  .panel .eyebrow{ color:var(--blue); }
+
+  .copy-row{ display:grid; grid-template-columns:22px 1fr; gap:10px; align-items:start;
+             font-size:13.5px; line-height:1.6; }
+  .ok{ color:#288A63; font-weight:700; font-family:var(--mono); font-size:12px; }
+  .no{ color:#F24A45; font-weight:700; font-family:var(--mono); font-size:12px; }
+  .copy-row em{ font-style:normal; color:var(--ink-3); }
+
+  footer{ margin-top:72px; padding-top:24px; border-top:1px solid var(--line);
+          font-family:var(--mono); font-size:11px; color:var(--ink-4); line-height:1.8; }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <p class="eyebrow">TicTocCroc Design System · BottomSheet</p>
+    <h1>재방문 유도 <em>BottomSheet</em> 와이어프레임</h1>
+    <p class="lede">
+      3주 이상 수업 이력이 없는 학부모에게 앱 진입 직후 노출되는 복귀 유도 시트입니다.
+      <code>BottomSheetTitle / Content / Action</code> 3슬롯 구조를 그대로 따르고,
+      컬러·타이포·여백은 parent 테마 토큰에서만 가져왔습니다.
+    </p>
+    <div class="meta">
+      <span class="tag on">theme: parent</span>
+      <span class="tag">Component: BottomSheet</span>
+      <span class="tag">Button · Chip · Backdrop</span>
+      <span class="tag">spacing: layout 8x / content 4x</span>
+      <span class="tag">viewport 360×740</span>
+    </div>
+  </header>
+
+  <!-- ================= WIREFRAME ================= -->
+  <section>
+    <div class="shead">
+      <span class="eyebrow">Wireframe</span>
+      <h2>구조와 적용 렌더</h2>
+    </div>
+    <p class="snote">
+      왼쪽은 슬롯 경계와 번호를 드러낸 구조 뷰, 오른쪽은 같은 구조에 토큰을 입힌 렌더입니다.
+      번호는 아래 스펙 표의 행과 1:1로 대응합니다.
+    </p>
+    <div class="rule"></div>
+
+    <div class="stage">
+
+      <!-- ---------- structure ---------- -->
+      <div class="plate">
+        <div class="plate-hd"><b>구조 뷰</b><span>slots &amp; regions</span></div>
+        <div class="phone-hold">
+        <div class="phone wf">
+          <div class="scr">
+            <div class="statusbar"><span>9:41</span><span>▮▮▮</span></div>
+            <div class="appbar"><b>홈</b></div>
+            <div class="sk" style="height:64px"></div>
+            <div class="sk" style="height:110px"></div>
+          </div>
+          <div class="dim"></div>
+          <span class="num out" style="top:96px; right:auto; left:14px;">1</span>
+          <div class="dimtag">Backdrop · dimmed01</div>
+
+          <div class="sheet">
+            <div class="handle-row" style="position:relative">
+              <div class="handle"></div>
+              <span class="num" style="top:4px">2</span>
+            </div>
+
+            <div class="wf-slot" style="margin-top:12px">
+              <span class="wf-tag">BottomSheetTitle</span>
+              <span class="num">3</span>
+              <div class="wf-stack">
+                <div class="bar tall" style="width:70%"></div>
+                <div class="bar lt" style="width:100%; margin-top:6px"></div>
+                <div class="bar lt" style="width:82%"></div>
+              </div>
+            </div>
+
+            <div class="wf-slot">
+              <span class="wf-tag">BottomSheetContent</span>
+              <span class="num">4</span>
+              <div class="wf-stack">
+                <div class="wf-box" style="height:78px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <div class="bar" style="width:96px; height:22px"></div>
+                    <div class="bar lt" style="width:70px; height:8px"></div>
+                  </div>
+                  <div class="bar lt" style="width:54px; height:8px"></div>
+                </div>
+                <div style="position:relative; display:flex; flex-direction:column; gap:8px; padding-top:6px;">
+                  <span class="num" style="top:-2px; right:0">5</span>
+                  <div class="bar lt" style="width:100px; height:8px"></div>
+                  <div style="display:flex; gap:6px;">
+                    <div class="bar" style="width:78px; height:28px; border-radius:14px"></div>
+                    <div class="bar" style="width:66px; height:28px; border-radius:14px"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="wf-slot" style="margin-bottom:10px">
+              <span class="wf-tag">BottomSheetAction</span>
+              <span class="num">6</span>
+              <div class="wf-stack">
+                <div class="bar" style="height:52px; border-radius:26px; background:#BDBDC1"></div>
+                <div style="position:relative">
+                  <span class="num" style="top:12px; right:0">7</span>
+                  <div class="bar lt" style="height:44px; border-radius:22px"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="navbar" style="position:relative; height:26px;">
+              <i></i><span class="num" style="top:4px">8</span>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <!-- ---------- rendered ---------- -->
+      <div class="plate">
+        <div class="plate-hd"><b>토큰 적용 렌더</b><span>parent · #FFC800</span></div>
+        <div class="phone-hold">
+        <div class="phone" id="mock">
+          <div class="scr">
+            <div class="statusbar"><span>9:41</span><span>▮▮▮</span></div>
+            <div class="appbar"><b>홈</b></div>
+            <div class="sk" style="height:64px"></div>
+            <div class="sk-card">
+              <div class="sk" style="width:58%; height:12px"></div>
+              <div class="sk" style="width:80%; height:9px"></div>
+              <div class="sk" style="width:40%; height:9px"></div>
+            </div>
+          </div>
+          <div class="dim" id="dim"></div>
+
+          <div class="sheet" id="sheet">
+            <div class="handle-row"><div class="handle"></div></div>
+
+            <div class="s-title">
+              <h3>다시 만나서 반가워요</h3>
+              <p>지호가 마지막으로 수업을 들은 지 3주가 지났어요.<br>돌아온 지금 쓸 수 있는 쿠폰을 준비했어요.</p>
+            </div>
+
+            <div class="s-content">
+              <div class="coupon">
+                <div class="amt">
+                  <b>15,000원</b>
+                  <span>복귀 회원 전용 할인</span>
+                </div>
+                <div class="exp">전 수업권<br>발급 후 7일</div>
+              </div>
+              <div class="picks">
+                <span>지호가 자주 들었던 수업</span>
+                <div class="chips">
+                  <span class="chip" style="background:#FAF194">놀이</span>
+                  <span class="chip" style="background:#FFE4EF">창의미술</span>
+                  <span class="chip" style="background:#BDE7EF">학습</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="s-action">
+              <button class="btn btn-filled" type="button">쿠폰 받고 수업 보기</button>
+              <button class="btn btn-text" type="button">다음에 볼게요</button>
+            </div>
+
+            <div class="navbar"><i></i></div>
+          </div>
+        </div>
+        </div>
+        <button class="replay" id="replay" type="button">▶ 열림 모션 200ms 재생</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= SPEC ================= -->
+  <section>
+    <div class="shead">
+      <span class="eyebrow">Spec</span>
+      <h2>요소별 토큰 매핑</h2>
+    </div>
+    <p class="snote">
+      타이포 변형명은 토큰의 <code>scale</code> 표기를 그대로 씁니다 —
+      h2=20px, b3=15px, c3=12px, c2=13px / R=400, M=500, B=700.
+    </p>
+    <div class="rule"></div>
+
+    <div class="tscroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>요소</th><th>컴포넌트 · 슬롯</th><th>타이포</th><th>컬러 토큰</th><th>여백</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="n">1</td>
+            <td><b>Backdrop</b><br><em style="font-style:normal;color:var(--ink-3);font-size:12.5px">탭 시 onClose</em></td>
+            <td>Backdrop</td>
+            <td>—</td>
+            <td><span class="sw" style="background:rgba(0,0,0,.6)"></span><code>etc.dimmed01</code> rgba(0,0,0,.60)</td>
+            <td>전체 화면</td>
+          </tr>
+          <tr>
+            <td class="n">2</td>
+            <td><b>Drag handle</b></td>
+            <td><code>enableDragCloseHandler</code></td>
+            <td>—</td>
+            <td><span class="sw" style="background:#D7D7DA"></span><code>grey.30</code> #D7D7DA</td>
+            <td>40×4 / 상 8 하 4</td>
+          </tr>
+          <tr>
+            <td class="n">3</td>
+            <td><b>타이틀 + 서브카피</b></td>
+            <td>BottomSheetTitle</td>
+            <td>h2B 20/700<br>b3R 15/400</td>
+            <td><span class="sw" style="background:#19191A"></span><code>grey.100</code><br><span class="sw" style="background:#62626A"></span><code>grey.70</code></td>
+            <td>24 좌우 / 사이 8</td>
+          </tr>
+          <tr>
+            <td class="n">4</td>
+            <td><b>쿠폰 카드</b></td>
+            <td>Card filled · BottomSheetContent</td>
+            <td>금액 34/700<br>레이블 c2M 13/500</td>
+            <td><span class="sw" style="background:#FFF7CC"></span><code>brandPrimary.bg</code><br><span class="sw" style="background:#FFD500"></span><code>brandPrimary.line</code> 1px<br><span class="sw" style="background:#EBA000"></span><code>brandPrimary.text</code></td>
+            <td>18/20 · radius 12<br>상단 20</td>
+          </tr>
+          <tr>
+            <td class="n">5</td>
+            <td><b>관심 수업 칩</b></td>
+            <td>Chip filled</td>
+            <td>c2M 13/500<br>레이블 c3M 12/500</td>
+            <td><span class="sw" style="background:#FAF194"></span><span class="sw" style="background:#FFE4EF"></span><span class="sw" style="background:#BDE7EF"></span><code>classType.*</code> / 텍스트 <code>grey.90</code></td>
+            <td>8·12 · gap 6<br>블록 간 16</td>
+          </tr>
+          <tr>
+            <td class="n">6</td>
+            <td><b>Primary CTA</b></td>
+            <td>Button filled · fullWidth · rounded</td>
+            <td>16/700</td>
+            <td><span class="sw" style="background:#FFC800"></span><code>brand.primary</code> / 텍스트 <code>grey.100</code><br>press <span class="sw" style="background:#F5B400"></span><code>#F5B400</code></td>
+            <td>h 52 · radius 26<br>상단 20</td>
+          </tr>
+          <tr>
+            <td class="n">7</td>
+            <td><b>닫기 버튼</b></td>
+            <td>Button text · fullWidth</td>
+            <td>b3M 15/500</td>
+            <td><span class="sw" style="background:#7B7B84"></span><code>grey.60</code></td>
+            <td>h 48 · gap 4</td>
+          </tr>
+          <tr>
+            <td class="n">8</td>
+            <td><b>시스템 내비게이션</b></td>
+            <td><code>systemNavigationBarColor</code></td>
+            <td>—</td>
+            <td><span class="sw" style="background:#fff"></span><code>grey.white</code> #FFFFFF (기본값)</td>
+            <td>+ safe-area-inset-bottom</td>
+          </tr>
+          <tr>
+            <td class="n">—</td>
+            <td><b>Sheet 컨테이너</b></td>
+            <td>BottomSheet</td>
+            <td>—</td>
+            <td><span class="sw" style="background:#fff"></span><code>grey.white</code> / <code>elevation.4</code></td>
+            <td>radius 20 20 0 0<br>max-height 90dvh</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= VARIANTS ================= -->
+  <section>
+    <div class="shead">
+      <span class="eyebrow">Variants</span>
+      <h2>트리거별 변형 3종</h2>
+    </div>
+    <p class="snote">
+      구조와 여백은 동일하고 Content 슬롯만 교체됩니다. 재방문 목적이 다르면 카피와 CTA 동사가 달라집니다.
+    </p>
+    <div class="rule"></div>
+
+    <div class="vgrid">
+
+      <div class="vcard">
+        <div class="vcard-hd">
+          <span class="eyebrow">A · Dormant</span>
+          <b>휴면 복귀 쿠폰</b>
+          <p>21일 이상 미접속. 돌아올 이유를 금액으로 제시합니다.</p>
+        </div>
+        <div class="vsheet">
+          <div class="mini">
+            <div class="handle-row"><div class="handle"></div></div>
+            <div class="s-title" style="padding:12px 18px 0">
+              <h3 style="font-size:18px">다시 만나서 반가워요</h3>
+              <p style="font-size:13.5px">돌아온 지금 쓸 수 있는 쿠폰을 준비했어요.</p>
+            </div>
+            <div class="s-content" style="padding:14px 18px 0">
+              <div class="coupon" style="padding:14px 16px">
+                <div class="amt"><b style="font-size:26px">15,000원</b><span style="font-size:12px">복귀 회원 전용</span></div>
+                <div class="exp">발급 후 7일</div>
+              </div>
+            </div>
+            <div class="s-action" style="padding:16px 18px 6px">
+              <button class="btn btn-filled" type="button" style="height:48px; font-size:15px">쿠폰 받고 수업 보기</button>
+              <button class="btn btn-text" type="button" style="height:40px; font-size:14px">다음에 볼게요</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vcard">
+        <div class="vcard-hd">
+          <span class="eyebrow">B · Cart drop-off</span>
+          <b>신청 이탈 복귀</b>
+          <p>담아둔 수업이 있고 24시간 내 미결제. 마감 임박을 근거로 씁니다.</p>
+        </div>
+        <div class="vsheet">
+          <div class="mini">
+            <div class="handle-row"><div class="handle"></div></div>
+            <div class="s-title" style="padding:12px 18px 0">
+              <h3 style="font-size:18px">담아둔 수업이 곧 마감돼요</h3>
+              <p style="font-size:13.5px">신청을 마치면 자리가 확정돼요.</p>
+            </div>
+            <div class="s-content" style="padding:14px 18px 0">
+              <div style="border:1px solid #E5E5E6; border-radius:12px; padding:14px 16px; display:flex; gap:12px; align-items:center;">
+                <div style="width:44px; height:44px; border-radius:10px; background:#FFE4EF; flex:0 0 auto;"></div>
+                <div style="display:flex; flex-direction:column; gap:4px; min-width:0;">
+                  <span style="font-size:14px; font-weight:700; color:#19191A;">창의미술 · 화요일 16:00</span>
+                  <span style="font-size:12px; font-weight:500; color:#F24A45;">잔여 2자리 · 내일 마감</span>
+                </div>
+              </div>
+            </div>
+            <div class="s-action" style="padding:16px 18px 6px">
+              <button class="btn btn-filled" type="button" style="height:48px; font-size:15px">이어서 신청하기</button>
+              <button class="btn btn-text" type="button" style="height:40px; font-size:14px">담아만 둘게요</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vcard">
+        <div class="vcard-hd">
+          <span class="eyebrow">C · Push opt-in</span>
+          <b>알림 허용 유도</b>
+          <p>푸시 미허용 + 수업 조회 3회 이상. 재방문 채널 자체를 확보합니다.</p>
+        </div>
+        <div class="vsheet">
+          <div class="mini">
+            <div class="handle-row"><div class="handle"></div></div>
+            <div class="s-title" style="padding:12px 18px 0">
+              <h3 style="font-size:18px">새 수업이 열리면 알려드릴까요?</h3>
+              <p style="font-size:13.5px">지호가 자주 듣는 놀이 수업 위주로만 보내요.</p>
+            </div>
+            <div class="s-content" style="padding:14px 18px 0">
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-radius:10px; background:#FAFAFC;">
+                  <span style="font-size:13.5px; color:#313135;">신규 수업 오픈</span>
+                  <span style="width:38px; height:22px; border-radius:11px; background:#FFC800; position:relative;"><i style="position:absolute; right:2px; top:2px; width:18px; height:18px; border-radius:50%; background:#fff; display:block;"></i></span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-radius:10px; background:#FAFAFC;">
+                  <span style="font-size:13.5px; color:#313135;">마감 임박 알림</span>
+                  <span style="width:38px; height:22px; border-radius:11px; background:#D7D7DA; position:relative;"><i style="position:absolute; left:2px; top:2px; width:18px; height:18px; border-radius:50%; background:#fff; display:block;"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="s-action" style="padding:16px 18px 6px">
+              <button class="btn btn-filled" type="button" style="height:48px; font-size:15px">알림 받기</button>
+              <button class="btn btn-text" type="button" style="height:40px; font-size:14px">지금은 괜찮아요</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= MOTION / STATE ================= -->
+  <section>
+    <div class="shead">
+      <span class="eyebrow">Motion &amp; State</span>
+      <h2>동작과 접근성</h2>
+    </div>
+    <div class="rule"></div>
+
+    <div class="cols2">
+      <div class="panel">
+        <span class="eyebrow">Open / Close</span>
+        <h4>전환</h4>
+        <ul class="clean">
+          <li><b>열림</b> — sheet <code>translateY(100%) → 0</code>, backdrop opacity 0 → 1, <code>200ms</code> ease-out. 토큰 <code>transitionDuration</code> 기본값 그대로.</li>
+          <li><b>닫힘 수단 3가지</b> — 핸들 아래로 드래그(<code>enableDragCloseHandler</code>), Backdrop 탭, 텍스트 버튼. 안드로이드 백 제스처도 <code>onClose</code>로 연결.</li>
+          <li><b>드래그 임계값</b> — 시트 높이의 25% 또는 속도 0.5px/ms 초과 시 닫힘, 미달 시 원위치 스프링.</li>
+          <li><b>reduced-motion</b> — 슬라이드 제거, 페이드만 200ms.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <span class="eyebrow">A11y</span>
+        <h4>접근성</h4>
+        <ul class="clean">
+          <li><b>role</b> — <code>dialog</code> + <code>aria-modal="true"</code>, 타이틀을 <code>aria-labelledby</code>로 연결.</li>
+          <li><b>포커스</b> — 열릴 때 타이틀로 이동, 시트 내부 포커스 트랩, 닫힐 때 트리거 요소로 복귀.</li>
+          <li><b>터치 타겟</b> — 모든 버튼 최소 48px 높이 확보(현재 52 / 48).</li>
+          <li><b>대비</b> — <code>#FFC800</code> 위 텍스트는 <code>grey.100</code>만 사용. 흰 텍스트는 대비 미달이라 금지.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TRIGGER ================= -->
+  <section>
+    <div class="shead">
+      <span class="eyebrow">Trigger</span>
+      <h2>노출 규칙</h2>
+    </div>
+    <p class="snote">
+      재방문 팝업은 디자인보다 빈도 제어가 성패를 가릅니다. 아래 조건을 컴포넌트 밖 정책 레이어에 둡니다.
+    </p>
+    <div class="rule"></div>
+
+    <div class="tscroll">
+      <table>
+        <thead>
+          <tr><th>변형</th><th>발동 조건</th><th>노출 시점</th><th>빈도 상한</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>A 휴면 복귀</b></td>
+            <td>마지막 접속 21일 이상 &amp; 결제 이력 1회 이상</td>
+            <td>홈 진입 1.5초 후</td>
+            <td>30일 1회 · 연 3회</td>
+          </tr>
+          <tr>
+            <td><b>B 신청 이탈</b></td>
+            <td>장바구니 담기 후 24시간 미결제 &amp; 잔여석 3 이하</td>
+            <td>홈 또는 앱 재진입 즉시</td>
+            <td>건당 1회 · 최대 2회</td>
+          </tr>
+          <tr>
+            <td><b>C 알림 허용</b></td>
+            <td>푸시 미허용 &amp; 수업 상세 3회 이상 조회</td>
+            <td>상세 이탈 시점</td>
+            <td>14일 1회 · 2회 거절 시 영구 중단</td>
+          </tr>
+          <tr>
+            <td><b>공통 억제</b></td>
+            <td colspan="3">
+              팝업 노출 후 24시간 내 다른 팝업 금지 · 결제/출석 체크 플로우 중 금지 ·
+              온보딩 완료 전 금지 · 하루 최대 1회
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= COPY ================= -->
+  <section>
+    <div class="shead">
+      <span class="eyebrow">Copy</span>
+      <h2>카피 기준</h2>
+    </div>
+    <div class="rule"></div>
+
+    <div class="cols2">
+      <div class="panel">
+        <span class="eyebrow">Title</span>
+        <h4>타이틀은 20자 이내, 2줄 금지</h4>
+        <div class="copy-row"><span class="ok">OK</span><span>다시 만나서 반가워요</span></div>
+        <div class="copy-row"><span class="no">NO</span><span>고객님, 오랜만에 방문해주셔서 감사합니다 <em>— 길고 사무적</em></span></div>
+        <div class="copy-row"><span class="ok">OK</span><span>담아둔 수업이 곧 마감돼요</span></div>
+        <div class="copy-row"><span class="no">NO</span><span>지금 놓치면 후회합니다! <em>— 불안 조장 · 느낌표 금지</em></span></div>
+      </div>
+
+      <div class="panel">
+        <span class="eyebrow">CTA</span>
+        <h4>버튼은 눌렀을 때 벌어지는 일 그대로</h4>
+        <div class="copy-row"><span class="ok">OK</span><span>쿠폰 받고 수업 보기 <em>— 결과가 두 개면 두 개 다 쓴다</em></span></div>
+        <div class="copy-row"><span class="no">NO</span><span>확인 / 자세히 보기 <em>— 무엇이 일어나는지 없음</em></span></div>
+        <div class="copy-row"><span class="ok">OK</span><span>다음에 볼게요 <em>— 거절도 사용자 어투로</em></span></div>
+        <div class="copy-row"><span class="no">NO</span><span>혜택 포기하기 <em>— 죄책감 유도(컨펌셰이밍) 금지</em></span></div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:20px">
+      <b>아이 이름 사용 원칙</b> — 등록된 아이가 1명일 때만 이름을 노출하고, 2명 이상이면 “아이들이 자주 듣던 수업”으로 대체합니다.
+      이름이 비어 있을 때의 폴백 카피를 항상 함께 정의하세요.
+    </div>
+  </section>
+
+  <!-- ================= GAPS ================= -->
+  <section>
+    <div class="shead">
+      <span class="eyebrow">Gaps</span>
+      <h2>토큰에 없어 임의로 정한 값</h2>
+    </div>
+    <p class="snote">
+      아래 5개는 <code>ticticcroc-design-tokens.json</code>에 정의가 없어 이 와이어프레임에서 제안한 값입니다. 확정 전에 검토가 필요합니다.
+    </p>
+    <div class="rule"></div>
+
+    <ul class="clean">
+      <li><b>시트 상단 radius 20px</b> — BottomSheet 토큰에 radius 항목이 없습니다. Dialog와 값을 맞출지 별도로 둘지 결정 필요.</li>
+      <li><b>드래그 핸들 40×4 / grey.30</b> — 크기·색 정의 없음. <code>enableDragCloseHandler</code>가 켜졌을 때의 기본 형태를 스펙에 추가 권장.</li>
+      <li><b>시트 최대 높이 90dvh</b> — Dialog에는 <code>maxHeight 438</code>이 있지만 BottomSheet에는 없습니다. 콘텐츠 초과 시 Content 슬롯만 스크롤.</li>
+      <li><b>본문 line-height 1.5</b> — 토큰 기본은 전 스케일 1.2입니다. 2줄 이상 본문에서는 1.2가 붙어 읽히므로 body 스케일에 한해 1.5 옵션 추가 제안.</li>
+      <li><b>쿠폰 금액 34px</b> — display d4(40px)는 360 폭에서 줄바꿈이 나고 headline h0(36px)도 빠듯합니다. 금액 전용 크기 정의 또는 d4 축소 사용 규칙 필요.</li>
+    </ul>
+  </section>
+
+  <footer>
+    source · ticticcroc-design-tokens.json (parent theme)<br>
+    components · BottomSheet, Button, Chip, Card, Backdrop<br>
+    wireframe scale · 340px 렌더 / 실제 스펙은 360×740 기준
+  </footer>
+
+</div>
+
+<script>
+  (function(){
+    var btn = document.getElementById('replay');
+    var sheet = document.getElementById('sheet');
+    var dim = document.getElementById('dim');
+    if(!btn || !sheet || !dim) return;
+    btn.addEventListener('click', function(){
+      sheet.classList.remove('play');
+      dim.classList.remove('play');
+      void sheet.offsetWidth;
+      sheet.classList.add('play');
+      dim.classList.add('play');
+    });
+  })();
+</script>
