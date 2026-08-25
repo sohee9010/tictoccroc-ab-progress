@@ -109,7 +109,6 @@
       { src: 'uc1-original.html?embed=1', choice: 'a' },
       { src: 'uc1-experience-timeline.html?embed=1', choice: 'b' }
     ];
-    if (Math.random() < 0.5) variants.reverse();
 
     var slotChoice = { left: variants[0].choice, right: variants[1].choice };
     document.querySelector('iframe[data-slot-src="left"]').src = variants[0].src;

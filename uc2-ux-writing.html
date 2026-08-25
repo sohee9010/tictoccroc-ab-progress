@@ -212,13 +212,6 @@
 </div>
 <script>
 (function(){
-  if (Math.random() < 0.5) {
-    var row = document.querySelector('.compare-row');
-    var cols = row.querySelectorAll(':scope > .col');
-    if (cols.length === 2) row.insertBefore(cols[1], cols[0]);
-  }
-})();
-(function(){
   var row = document.querySelector('.compare-row');
   document.querySelectorAll('.mobile-tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
