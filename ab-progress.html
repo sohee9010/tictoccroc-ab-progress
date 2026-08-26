@@ -32,12 +32,9 @@
   *{ box-sizing:border-box; }
   body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); }
   .wrap{ max-width:920px; margin:0 auto; padding:40px 20px 80px; }
-  .brand-row{ display:flex; align-items:center; gap:10px; margin-bottom:22px; }
-  .brand-row img.icon{ width:34px; height:34px; border-radius:9px; display:block; }
-  .brand-row img.wordmark{ height:16px; width:auto; display:block; }
-  .brand-footer{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:36px; }
-  .brand-footer img.icon{ width:28px; height:28px; border-radius:8px; display:block; }
-  .brand-footer img.wordmark{ height:14px; width:auto; display:block; }
+  .brand-row{ display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+  .brand-row img.icon{ width:44px; height:44px; border-radius:11px; display:block; }
+  .brand-row img.wordmark{ height:22px; width:auto; display:block; }
   header{ margin-bottom:28px; }
   header .eyebrow{ font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-3); margin:0 0 6px; }
   header h1{ font-size:24px; font-weight:800; letter-spacing:-0.02em; margin:0 0 8px; }
@@ -56,6 +53,10 @@
 </head>
 <body>
   <div class="wrap">
+    <div class="brand-row">
+      <img class="icon" src="이미지/logo-icon.svg" alt="TicTocIsland 로고">
+      <img class="wordmark" src="이미지/logo-wordmark.png" alt="째깍섬">
+    </div>
     <header>
       <p class="eyebrow">TicTocIsland · Design Progress</p>
       <h1>째깍섬 A/B테스트</h1>
@@ -97,11 +98,6 @@
 
     <div class="note">
       <b>참고</b> · UC1, UC2, UC3, UC4, UC5는 실제 투표가 반영되고 있습니다(Firebase 연동, 실시간 결과 반영). 카드를 눌러 두 화면을 비교하고 더 나은 쪽에 투표해보세요.
-    </div>
-
-    <div class="brand-footer">
-      <img class="icon" src="이미지/logo-icon.svg" alt="TicTocIsland 로고">
-      <img class="wordmark" src="이미지/logo-wordmark.png" alt="째깍섬">
     </div>
   </div>
 </body>
