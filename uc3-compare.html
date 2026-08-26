@@ -51,7 +51,8 @@
 
   .uc3-sheet{ background:#fff; border-radius:16px 16px 0 0; margin-top:-16px; position:relative;
               min-height:520px; padding:16px 18px 26px; display:flex; flex-direction:column; gap:12px; }
-  .uc3-handle{ width:36px; height:4px; border-radius:2px; background:#D7D7DA; margin:0 auto; }
+  .uc3-close-row{ display:flex; justify-content:flex-end; }
+  .uc3-x{ width:28px; height:28px; border-radius:50%; border:0; background:#F4F4F6; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
 
   .uc3-tags{ display:flex; align-items:center; gap:6px; margin-top:10px; }
   .uc3-tag{ font-size:12.5px; font-weight:700; padding:5px 11px; border-radius:8px; white-space:nowrap; }
@@ -126,7 +127,7 @@
             <div class="uc3b-scrim"></div>
           </div>
           <div class="uc3-sheet">
-            <div class="uc3-handle"></div>
+            <div class="uc3-close-row"><button class="uc3-x" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#7B7B84" stroke-width="2" stroke-linecap="round"/></svg></button></div>
             <p class="uc3-greet">지우 보호자님, 오랜만이에요</p>
             <b class="uc3-title">8월엔 내가 키운 채소를 직접 수확해요</b>
             <div class="uc3-cards">
