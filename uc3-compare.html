@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UC3 A/B 비교 · TicTocCroc</title>
+<title>UC3 A/B 비교 · TicTocIsland</title>
 <style>
+  @font-face{
+    font-family:'Pretendard Variable';
+    src:url('글꼴/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations'), url('글꼴/web/variable/woff2/PretendardVariable.woff2') format('woff2');
+    font-weight:45 920; font-style:normal; font-display:swap;
+  }
   :root{
     --bg:#F7F7F8; --surface:#FFFFFF; --ink:#19191A; --ink-2:#4A4A4F; --ink-3:#7B7B84;
     --line:#E5E5E6; --brand:#FFC800; --brand-bg:#FFF7CC;
@@ -18,7 +23,7 @@
   h1{ font-size:20px; font-weight:800; letter-spacing:-0.02em; margin:0 0 6px; }
   .sub{ font-size:13.5px; color:var(--ink-3); margin:0 0 22px; }
 
-  .compare{ display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+  .compare{ display:flex; gap:24px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
 
   .mobile-tabs{ display:none; gap:8px; margin-bottom:14px; }
   .mobile-tab{ flex:1; height:40px; border-radius:10px; border:1px solid var(--line); background:#fff;
@@ -26,21 +31,56 @@
   .mobile-tab.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
 
   @media (max-width:900px){
-    .compare{ grid-template-columns:1fr; }
     .mobile-tabs{ display:flex; }
-    .compare .col{ display:none; }
+    .compare .col{ display:none; width:100%; }
     .compare.show-left .col[data-col="left"]{ display:flex; }
     .compare.show-right .col[data-col="right"]{ display:flex; }
   }
 
-  .col{ display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
-  .col-badge{ font-size:13px; font-weight:900; padding:6px 18px; border-radius:999px; letter-spacing:.04em; background:#4A4A4F; color:#fff; flex:0 0 auto; }
+  .col{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .col-badge{ font-size:16px; font-weight:900; padding:10px 26px; border-radius:999px; letter-spacing:.04em; background:#4A4A4F; color:#fff; flex:0 0 auto; }
+  .col-badge[data-slot="right"]{ background:#FFC800; color:#19191A; }
 
   .frame-wrap{ width:100%; max-width:380px; border-radius:20px; overflow:hidden;
                border:1px solid var(--line); box-shadow:0 14px 32px rgba(0,0,0,.12); background:#fff; }
   .frame-wrap img{ width:100%; display:block; }
 
-  .poll-section{ display:flex; flex-direction:row; justify-content:center; align-items:center; gap:16px; margin-top:20px; width:100%; }
+  .uc3b-hero-wrap{ position:relative; }
+  .uc3b-hero-wrap img{ width:100%; display:block; }
+  .uc3b-scrim{ position:absolute; inset:0; background:rgba(0,0,0,.45); }
+
+  .uc3-sheet{ background:#fff; border-radius:16px 16px 0 0; margin-top:-16px; position:relative;
+              min-height:520px; padding:16px 18px 26px; display:flex; flex-direction:column; gap:12px; }
+  .uc3-handle{ width:36px; height:4px; border-radius:2px; background:#D7D7DA; margin:0 auto; }
+
+  .uc3-tags{ display:flex; align-items:center; gap:6px; margin-top:10px; }
+  .uc3-tag{ font-size:12.5px; font-weight:700; padding:5px 11px; border-radius:8px; white-space:nowrap; }
+  .uc3-tag.blue{ color:#148ABD; background:#DFF7FC; }
+  .uc3-tag.red{ color:#DE3571; background:#FEECF2; }
+
+  .uc3-greet{ font-size:15px; font-weight:600; color:#7B7B84; margin:0; }
+  .uc3-title{ font-size:21px; font-weight:800; margin:0; line-height:1.4; letter-spacing:-0.02em; }
+
+  .uc3-cards{ display:flex; align-items:stretch; gap:8px; }
+  .uc3-card{ flex:1; border:1px solid #E5E5E6; border-radius:14px; overflow:hidden; background:#fff; min-width:0; }
+  .uc3-card.active{ border:2px solid #FFC800; background:#FFFBE6; }
+  .uc3-card-chevron{ flex:0 0 auto; align-self:center; color:#BDBDC1; display:flex; align-items:center; }
+  .uc3-card-chevron svg{ width:16px; height:16px; }
+  .uc3-card-label{ font-size:14px; font-weight:800; display:inline-block; }
+  .uc3-card:not(.active) .uc3-card-label{ color:#7B7B84; background:#fff; border:1.5px solid #E5E5E6; border-radius:999px; padding:4px 13px; margin:8px 0 0 8px; }
+  .uc3-card.active .uc3-card-label{ background:#FFC800; color:#19191A; border-radius:999px; padding:4px 13px; margin:7px 0 0 7px; }
+  .uc3-card-photo{ width:100%; display:block; margin-top:5px; background:#F2F2F3; }
+  .uc3-card ul{ margin:0; padding:6px 8px 8px; list-style:none; font-size:12.5px; font-weight:700; color:#4A4A4F; line-height:1.5; }
+  .uc3-card li{ position:relative; padding-left:8px; }
+  .uc3-card li::before{ content:'·'; position:absolute; left:0; }
+
+  .uc3-badge-row{ display:flex; align-items:center; gap:8px; }
+  .uc3-badge-new{ font-size:12px; font-weight:800; color:#288A63; background:#E7F8ED; padding:5px 10px; border-radius:999px; white-space:nowrap; flex:0 0 auto; }
+  .uc3-badge-row p{ font-size:13px; font-weight:600; color:#4A4A4F; margin:0; }
+  .uc3-cta{ width:100%; height:50px; border-radius:12px; border:0; background:#FFC800; color:#19191A; font-weight:800; font-size:15px; cursor:pointer; font-family:inherit; }
+  .uc3-dismiss{ text-align:center; font-size:12.5px; font-weight:600; color:#7B7B84; margin:0; }
+
+  .poll-section{ display:flex; flex-direction:row; justify-content:center; align-items:center; gap:16px; margin-top:8px; width:100%; }
   .poll-section .poll-item{ flex:1; max-width:380px; }
   .poll-item{ display:flex; flex-direction:column; align-items:center; gap:6px; width:100%; }
   @media (max-width:900px){ .poll-section{ flex-direction:column; } }
@@ -69,29 +109,61 @@
     <p class="sub">두 화면 중 어떤 쪽이 더 나은지 비교해보고, 더 나은 쪽에 투표해보세요.</p>
 
     <div class="mobile-tabs" id="mobileTabs">
-      <button class="mobile-tab active" data-show="left" type="button">A</button>
-      <button class="mobile-tab" data-show="right" type="button">B</button>
+      <button class="mobile-tab active" data-show="left" type="button">AS-IS</button>
+      <button class="mobile-tab" data-show="right" type="button">TO-BE</button>
     </div>
 
     <div class="compare show-left" id="compareGrid">
       <div class="col" data-col="left">
-        <span class="col-badge" data-slot="left">A</span>
-        <div class="frame-wrap"><img src="이미지/UC3_AS-IS.PNG" alt="UC3 원본 화면"></div>
+        <span class="col-badge" data-slot="left">AS-IS</span>
+        <div class="frame-wrap"><img src="이미지/째깍메인.PNG" alt="UC3 원본 화면"></div>
       </div>
       <div class="col" data-col="right">
-        <span class="col-badge" data-slot="right">B</span>
-        <div class="frame-wrap"><img src="이미지/UC3_TO-BE.PNG" alt="UC3 개선안 화면"></div>
+        <span class="col-badge" data-slot="right">TO-BE</span>
+        <div class="frame-wrap">
+          <div class="uc3b-hero-wrap">
+            <img src="이미지/uc3-hero.jpg" alt="UC3 개선안 화면 상단">
+            <div class="uc3b-scrim"></div>
+          </div>
+          <div class="uc3-sheet">
+            <div class="uc3-handle"></div>
+            <p class="uc3-greet">지우 보호자님, 오랜만이에요</p>
+            <b class="uc3-title">8월엔 내가 키운 채소를 직접 수확해요</b>
+            <div class="uc3-cards">
+              <div class="uc3-card">
+                <span class="uc3-card-label">7월</span>
+                <img class="uc3-card-photo" src="이미지/uc3-month7-thumb.jpg" alt="7월">
+                <ul><li>씨앗을 심기만 했어요</li></ul>
+              </div>
+              <span class="uc3-card-chevron"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="uc3-card active">
+                <span class="uc3-card-label">8월</span>
+                <img class="uc3-card-photo" src="이미지/uc3-month8-thumb.jpg" alt="8월">
+                <ul>
+                  <li>심은 걸 두 눈으로 봐요</li>
+                  <li>손으로 직접 뽑아요</li>
+                </ul>
+              </div>
+            </div>
+            <div class="uc3-badge-row">
+              <span class="uc3-badge-new">새로운 작물 추가!</span>
+              <p>수확한 채소를 손에 들어보고, 체험해봐요</p>
+            </div>
+            <button class="uc3-cta" type="button">지금 예약하고 채소 수확하러 가기</button>
+            <p class="uc3-dismiss">일주일 뒤에 다시 보기</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="poll-section">
       <div class="poll-item">
-        <button class="vote-btn" data-vote="left" type="button">A 화면이 더 좋아요</button>
+        <button class="vote-btn" data-vote="left" type="button">AS-IS 화면이 더 좋아요</button>
         <div class="result-bar" data-bar="left"><span></span></div>
         <div class="result-pct" data-pct="left"></div>
       </div>
       <div class="poll-item">
-        <button class="vote-btn" data-vote="right" type="button">B 화면이 더 좋아요</button>
+        <button class="vote-btn" data-vote="right" type="button">TO-BE 화면이 더 좋아요</button>
         <div class="result-bar" data-bar="right"><span></span></div>
         <div class="result-pct" data-pct="right"></div>
       </div>
@@ -126,7 +198,7 @@
         var btn = document.querySelector('.vote-btn[data-vote="' + slot + '"]');
         btn.disabled = true;
         btn.classList.toggle('picked', slot === pickedSlot);
-        var label = slot === 'left' ? 'A' : 'B';
+        var label = slot === 'left' ? 'AS-IS' : 'TO-BE';
         btn.textContent = slot === pickedSlot ? label + ' · 투표 완료' : label + ' 화면이 더 좋아요';
       });
     }

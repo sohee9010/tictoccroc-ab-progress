@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>도시농부 상세페이지 · UC5 · TicTocCroc</title>
+<title>도시농부 상세페이지 · UC5 · TicTocIsland</title>
 <style>
   :root{
     --g10:#F2F2F3; --g20:#E5E5E6; --g30:#D7D7DA; --g40:#BDBDC1;
@@ -42,6 +42,8 @@
   body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
         letter-spacing:-0.32px; -webkit-font-smoothing:antialiased; }
   .wrap{ max-width:960px; margin:0 auto; padding:40px 24px 80px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+  body.embed .wrap{ padding:0; }
+  body.embed .fileHead{ display:none; }
   .fileHead{ width:100%; max-width:360px; display:flex; flex-direction:column; gap:4px; }
   .eyebrow{ font-family:var(--sans); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
   .fileHead h1{ margin:0; font-size:16px; font-weight:700; letter-spacing:-0.02em; color:var(--ink); }
@@ -211,9 +213,10 @@
 </style>
 </head>
 <body>
+<script>if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embed');</script>
 <div class="wrap">
   <div class="fileHead">
-    <span class="eyebrow">TicTocCroc · 잠실센터 · 도시농부</span>
+    <span class="eyebrow">TicTocIsland · 잠실센터 · 도시농부</span>
     <h1>UC5 · 부모 편의 시설 (아이콘)</h1>
   </div>
 
