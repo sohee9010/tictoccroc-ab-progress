@@ -180,6 +180,7 @@
     var slotChoice = { left: 'a', right: 'b' };
 
     var hint = document.getElementById('voteHint');
+    var lastResult = null;
 
     function renderResults(result) {
       ['left', 'right'].forEach(function (slot) {
@@ -211,6 +212,7 @@
         lockButtons(slot);
         hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
         await castVote(POLL_ID, choice);
+        if (lastResult) renderResults(lastResult);
       });
     });
 
@@ -227,6 +229,7 @@
     });
 
     watchResults(POLL_ID, function (result) {
+      lastResult = result;
       if (hasVoted(POLL_ID)) {
         var choice = myChoice(POLL_ID);
         var pickedSlot = slotChoice.left === choice ? 'left' : 'right';

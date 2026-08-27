@@ -231,6 +231,7 @@
 
   var POLL_ID = 'uc2';
   var hint = document.getElementById('voteHint');
+  var lastResult = null;
 
   function renderResults(result) {
     ['a', 'b'].forEach(function (choice) {
@@ -249,7 +250,7 @@
       var btn = document.querySelector('.vote-btn[data-vote="' + choice + '"]');
       btn.disabled = true;
       btn.classList.toggle('picked', choice === picked);
-      var label = choice.toUpperCase();
+      var label = choice === 'a' ? 'AS-IS' : 'TO-BE';
       btn.textContent = choice === picked ? label + ' · 투표 완료' : label + ' 화면이 더 좋아요';
     });
   }
@@ -260,10 +261,12 @@
       lockButtons(choice);
       hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
       await castVote(POLL_ID, choice);
+      if (lastResult) renderResults(lastResult);
     });
   });
 
   watchResults(POLL_ID, function (result) {
+    lastResult = result;
     if (hasVoted(POLL_ID)) {
       lockButtons(myChoice(POLL_ID));
       hint.textContent = '투표해주셔서 감사해요! 실시간 결과예요.';
