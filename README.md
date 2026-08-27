@@ -84,8 +84,11 @@ service cloud.firestore {
     }
     match /voters/{voterId} {
       allow read: if true;
-      allow create: if !exists(/databases/$(database)/documents/voters/$(voterId));
-      allow update: if resource.data.status == 'in_progress';
+      allow create: if request.resource.data.keys().hasOnly(['pollId', 'choice', 'votedAt'])
+                    && request.resource.data.choice in ['a', 'b'];
+      allow update: if request.resource.data.keys().hasOnly(['pollId', 'choice', 'votedAt'])
+                    && request.resource.data.choice in ['a', 'b']
+                    && request.resource.data.pollId == resource.data.pollId;
       allow delete: if false;
     }
   }
@@ -93,12 +96,16 @@ service cloud.firestore {
 ```
 
 이 규칙이 하는 일:
-- `voters/{voterId}` 문서는 **한 번만 생성 가능** → 같은 브라우저(같은 voterId)로는 재투표 불가
+- `voters/{voterId}` 문서는 처음 투표할 때 생성되고, **같은 사람이 선택을 바꿀 때는 choice 필드만 수정 가능** (poll ID를 바꾸거나 다른 필드를 끼워넣는 시도는 막힘)
 - `polls` 문서는 a/b 카운트만 수정 가능
 
 > **한계**: 완전한 부정 투표 방지는 아닙니다. 브라우저 저장공간(localStorage)을 지우거나
-> 시크릿 모드/다른 기기를 쓰면 재투표가 가능해요. 사내 소규모 A/B 테스트 용도로는 충분한 수준이고,
+> 시크릿 모드/다른 기기를 쓰면 새 투표자로 인식돼요. 사내 소규모 A/B 테스트 용도로는 충분한 수준이고,
 > 완벽 차단이 필요하면 로그인(사번/이메일) 기반으로 바꾸는 게 좋아요 — 필요하면 알려주세요.
+>
+> **기존에 이전 버전 규칙을 이미 게시했다면**, Firebase 콘솔 → Firestore Database → 규칙 탭에서
+> 위 내용으로 다시 교체하고 게시해야 투표 변경(선택 바꾸기)이 정상 동작합니다. 이전 규칙(`allow update: if resource.data.status == 'in_progress'`)이 남아있으면
+> voter 문서 수정이 거부돼서 선택을 바꿀 수 없어요.
 
 ## 4. 로컬에서 테스트
 

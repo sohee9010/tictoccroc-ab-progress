@@ -451,7 +451,7 @@
     function lockButtons(pickedSlot) {
       ['left', 'right'].forEach(function (slot) {
         var btn = document.querySelector('.vote-btn[data-vote="' + slot + '"]');
-        btn.disabled = true;
+        btn.disabled = (slot === pickedSlot);
         btn.classList.toggle('picked', slot === pickedSlot);
         var label = slot === 'left' ? 'AS-IS' : 'TO-BE';
         btn.textContent = slot === pickedSlot ? label + ' · 투표 완료' : label + ' 화면이 더 좋아요';

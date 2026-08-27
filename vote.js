@@ -30,11 +30,23 @@ export function myChoice(pollId) {
 
 // choice: 'a' or 'b'
 export async function castVote(pollId, choice) {
-  if (hasVoted(pollId)) return myChoice(pollId);
+  var current = myChoice(pollId);
+  if (current === choice) return choice;
 
   var voterId = getVoterId();
   var voterRef = doc(db, "voters", voterId + "_" + pollId);
   var pollRef = doc(db, "polls", pollId);
+
+  if (current) {
+    // switching an existing vote to the other choice
+    var swap = {};
+    swap[current] = increment(-1);
+    swap[choice] = increment(1);
+    await updateDoc(pollRef, swap);
+    await setDoc(voterRef, { pollId: pollId, choice: choice, votedAt: Date.now() }, { merge: true });
+    localStorage.setItem(votedKey(pollId), choice);
+    return choice;
+  }
 
   var existing = await getDoc(voterRef);
   if (existing.exists()) {

@@ -246,7 +246,7 @@
   function lockButtons(picked) {
     ['a', 'b'].forEach(function (choice) {
       var btn = document.querySelector('.vote-btn[data-vote="' + choice + '"]');
-      btn.disabled = true;
+      btn.disabled = (choice === picked);
       btn.classList.toggle('picked', choice === picked);
       var label = choice === 'a' ? 'AS-IS' : 'TO-BE';
       btn.textContent = choice === picked ? label + ' · 투표 완료' : label + ' 화면이 더 좋아요';
