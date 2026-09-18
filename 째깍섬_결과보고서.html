@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>째깍섬 결과보고서 · TicTocIsland</title>
+<style>
+  :root{
+    --bg:#F7F7F8; --surface:#FFFFFF; --sunken:#FAFAFC;
+    --ink:#19191A; --ink-2:#4A4A4F; --ink-3:#7B7B84; --ink-4:#A3A3A9;
+    --line:#E5E5E6; --line-soft:#F2F2F3;
+    --brand:#FFC800; --brand-bg:#FFF7CC;
+    --green-90:#288A63; --green-10:#E7F8ED;
+    --sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Segoe UI','Noto Sans KR','Malgun Gothic',sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#141416; --surface:#1F1F22; --sunken:#19191A;
+      --ink:#F2F2F3; --ink-2:#D7D7DA; --ink-3:#A3A3A9; --ink-4:#7B7B84;
+      --line:#313135; --line-soft:#26262A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141416; --surface:#1F1F22; --sunken:#19191A;
+    --ink:#F2F2F3; --ink-2:#D7D7DA; --ink-3:#A3A3A9; --ink-4:#7B7B84;
+    --line:#313135; --line-soft:#26262A;
+  }
+  :root[data-theme="light"]{
+    --bg:#F7F7F8; --surface:#FFFFFF; --sunken:#FAFAFC;
+    --ink:#19191A; --ink-2:#4A4A4F; --ink-3:#7B7B84; --ink-4:#A3A3A9;
+    --line:#E5E5E6; --line-soft:#F2F2F3;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); word-break:keep-all; overflow-wrap:break-word; }
+  a{ color:inherit; }
+
+  .layout{ max-width:1160px; margin:0 auto; padding:16px 20px 100px; display:flex; align-items:flex-start; gap:48px; }
+  .main{ min-width:0; flex:1 1 auto; order:1; }
+
+  /* ---- TOC ---- */
+  .toc{ flex:0 0 180px; order:2; position:sticky; top:20px; display:flex; flex-direction:column; gap:1px; width:180px; }
+  .toc a{ font-size:12.5px; font-weight:600; color:var(--ink-3); text-decoration:none; padding:7px 10px;
+          border-radius:8px; border-left:2px solid transparent; transition:background .12s ease, color .12s ease; }
+  .toc a:hover{ background:var(--sunken); color:var(--ink); }
+  .toc a.active{ background:var(--brand-bg); color:var(--ink); font-weight:800; }
+  .toc .toc-group{ font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-4); margin:14px 0 2px; padding:0 10px; }
+  .toc .toc-group:first-child{ margin-top:0; }
+
+  @media (max-width:860px){
+    .layout{ flex-direction:column; padding-top:0; gap:0; }
+    .main{ order:2; }
+    .toc{ order:1; width:auto; flex:0 0 auto; position:sticky; top:0; z-index:20; flex-direction:row; overflow-x:auto; background:var(--bg);
+          border-bottom:1px solid var(--line); padding:10px 16px; margin:0 -20px 24px; gap:4px;
+          -ms-overflow-style:none; scrollbar-width:none; }
+    .toc::-webkit-scrollbar{ display:none; }
+    .toc .toc-group{ display:none; }
+    .toc a{ flex:0 0 auto; white-space:nowrap; border-left:0; border-bottom:2px solid transparent; border-radius:999px; background:var(--sunken); }
+    .toc a.active{ border-left:0; border-bottom-color:var(--brand); }
+    .main{ padding-top:8px; }
+  }
+
+  /* ---- header ---- */
+  .brand-row{ display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .brand-row img.icon{ width:44px; height:44px; border-radius:11px; display:block; }
+  .brand-row img.wordmark{ height:22px; width:auto; display:block; }
+  header.hero{ margin-bottom:24px; }
+  .eyebrow{ font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-3); margin:0 0 6px; }
+  header.hero h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin:0 0 12px; }
+  header.hero p{ font-size:15.5px; line-height:1.85; color:var(--ink-2); margin:0 0 10px; }
+  header.hero p:last-child{ margin-bottom:0; }
+
+  .stat-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+  .stat{ flex:1; min-width:120px; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+  .stat b{ display:block; font-size:20px; font-weight:800; letter-spacing:-0.02em; }
+  .stat span{ display:block; font-size:11.5px; color:var(--ink-3); margin-top:2px; }
+
+  /* ---- sections ---- */
+  section{ margin-top:56px; scroll-margin-top:20px; }
+  section .section-eyebrow{ font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#8A6A00; margin:0 0 6px; }
+  section h2{ font-size:21px; font-weight:800; letter-spacing:-0.02em; margin:0 0 10px; }
+  section > .section-desc{ font-size:15px; line-height:1.85; color:var(--ink-2); margin:0 0 22px; }
+
+  /* ---- team ---- */
+  .team-meta{ font-size:13.5px; line-height:1.7; color:var(--ink-3); margin:0 0 16px; }
+  .team-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .member{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px; text-align:center; }
+  .member .role{ font-size:10.5px; font-weight:800; color:#8A6A00; background:var(--brand-bg); border-radius:999px; padding:2px 10px; display:inline-block; margin-bottom:8px; }
+  .member.mentor .role{ color:#148ABD; background:#DFF7FC; }
+  .member .name{ font-size:14.5px; font-weight:800; margin:0 0 3px; }
+  .member .task{ font-size:11.5px; color:var(--ink-3); }
+
+  /* ---- process ---- */
+  .process-stats{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  .process-stats .stat b{ color:#8A6A00; }
+  .timeline{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .timeline .phase{ background:var(--sunken); border:1px solid var(--line-soft); border-radius:12px; padding:12px 14px; }
+  .timeline .phase b{ display:block; font-size:11.5px; color:#8A6A00; margin-bottom:4px; }
+  .timeline .phase span{ font-size:12px; color:var(--ink-2); line-height:1.5; }
+  @media (max-width:640px){ .timeline{ grid-template-columns:1fr 1fr; } }
+
+  /* ---- background ---- */
+  .quote-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-bottom:16px; }
+  .quote{ background:var(--sunken); border:1px solid var(--line-soft); border-radius:12px; padding:13px 15px; font-size:13.5px; line-height:1.6; color:var(--ink-2); }
+  .quote::before{ content:'\201C'; color:var(--ink-4); font-weight:800; margin-right:2px; }
+  .data-note{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; font-size:14px; line-height:1.75; color:var(--ink-2); margin-bottom:20px; }
+  .data-note b{ color:var(--ink); }
+
+  .review-title{ font-size:13px; font-weight:800; color:var(--ink-2); margin:0 0 4px; }
+  .review-meta{ font-size:12px; color:var(--ink-4); margin:0 0 12px; }
+  .review-rows{ display:flex; flex-direction:column; gap:9px; margin-bottom:24px; }
+  .review-row{ display:grid; grid-template-columns:170px 1fr 48px; align-items:center; gap:10px; }
+  .review-row .rlabel{ font-size:13px; font-weight:700; color:var(--ink-2); }
+  .review-row .rtrack{ height:10px; border-radius:6px; background:var(--line-soft); overflow:hidden; }
+  .review-row .rfill{ height:100%; background:var(--ink-4); border-radius:6px; }
+  .review-row .rpct{ font-size:12.5px; font-weight:700; color:var(--ink-3); text-align:right; }
+
+  .insight-list{ display:flex; flex-direction:column; gap:9px; margin-bottom:8px; }
+  .insight-list li{ font-size:13.5px; line-height:1.65; color:var(--ink-2); padding-left:18px; position:relative; }
+  .insight-list li::before{ content:''; position:absolute; left:0; top:8px; width:6px; height:6px; border-radius:50%; background:var(--brand); }
+
+  /* ---- target ---- */
+  .target-meta{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+  .target-meta .stat span{ line-height:1.5; }
+  .need-list{ display:flex; flex-direction:column; gap:8px; }
+  .need-row{ display:grid; grid-template-columns:150px 1fr; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 16px; align-items:center; }
+  .need-row b{ font-size:13.5px; }
+  .need-row span{ font-size:13.5px; color:var(--ink-2); line-height:1.55; }
+  @media (max-width:560px){ .need-row{ grid-template-columns:1fr; } }
+
+  /* ---- 5 whys ---- */
+  .whys{ display:flex; flex-direction:column; gap:0; margin-bottom:8px; border-left:2px solid var(--line); padding-left:16px; }
+  .why{ position:relative; padding:0 0 18px; }
+  .why:last-child{ padding-bottom:0; }
+  .why::before{ content:''; position:absolute; left:-20.5px; top:3px; width:8px; height:8px; border-radius:50%; background:var(--brand); }
+  .why b{ display:block; font-size:12.5px; color:var(--ink-4); font-weight:800; margin-bottom:4px; }
+  .why span{ font-size:14.5px; line-height:1.65; color:var(--ink-2); }
+  .why.final span{ color:var(--ink); font-weight:700; }
+
+  /* ---- problem table ---- */
+  .problem-list{ display:flex; flex-direction:column; gap:8px; }
+  .problem-row{ display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 16px; }
+  .problem-row .uc-chip{ flex:0 0 auto; font-size:11px; font-weight:800; color:#8A6A00; background:var(--brand-bg); border-radius:999px; padding:4px 10px; }
+  .problem-row .txt b{ display:block; font-size:14px; font-weight:700; margin-bottom:3px; }
+  .problem-row .txt span{ font-size:13px; color:var(--ink-2); line-height:1.55; }
+
+  /* ---- goal ---- */
+  .goal-list{ display:flex; flex-direction:column; gap:10px; }
+  .goal-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch; }
+  .goal-row .as-is{ background:var(--sunken); border:1px solid var(--line-soft); border-radius:12px; padding:14px 16px; font-size:13.5px; line-height:1.6; color:var(--ink-2); display:flex; align-items:center; }
+  .goal-row .to-be{ background:var(--brand); border-radius:12px; padding:14px 16px; font-size:14px; font-weight:700; line-height:1.55; color:var(--ink); display:flex; align-items:center; }
+  .goal-labels{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:6px; }
+  .goal-labels span{ font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-4); }
+  @media (max-width:560px){ .goal-row, .goal-labels{ grid-template-columns:1fr; } }
+
+  /* ---- case list (UC results with screenshots) ---- */
+  .case-list{ display:flex; flex-direction:column; gap:22px; }
+  .case{ display:grid; grid-template-columns:300px 1fr; gap:22px; background:var(--surface); border:1px solid var(--line);
+         border-radius:18px; padding:16px; text-decoration:none; color:inherit; transition:border-color .12s ease, box-shadow .12s ease; }
+  .case:hover{ border-color:var(--brand); box-shadow:0 10px 24px rgba(0,0,0,.07); }
+  .case .shot{ width:100%; height:320px; border-radius:12px; overflow:hidden; border:1px solid var(--line-soft); background:var(--sunken); flex:0 0 auto; }
+  .case .shot img{ width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+  .case .body{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .case .case-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .case .tag{ font-size:11px; font-weight:800; letter-spacing:.03em; color:#8A6A00; background:var(--brand-bg); padding:3px 8px; border-radius:999px; }
+  .case .result{ font-size:11px; font-weight:800; letter-spacing:.01em; color:var(--green-90); background:var(--green-10); padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .case h3{ margin:0; font-size:18px; font-weight:800; letter-spacing:-0.01em; }
+  .case p{ margin:0; font-size:13.5px; line-height:1.6; color:var(--ink-3); }
+  .case .hyp{ font-size:13.5px; line-height:1.6; color:var(--ink-2); background:var(--sunken); border-radius:10px; padding:10px 12px; }
+  .case .hyp b{ color:#8A6A00; font-weight:800; }
+  .case .spec{ font-size:13.5px; line-height:1.6; color:var(--ink-2); }
+  .case .spec b{ color:var(--ink-2); font-weight:700; }
+  .case .go{ margin-top:auto; padding-top:4px; font-size:12.5px; font-weight:700; color:var(--ink-2); display:flex; align-items:center; gap:4px; }
+  .case .go svg{ width:13px; height:13px; }
+  @media (max-width:640px){ .case{ grid-template-columns:1fr; } .case .shot{ height:220px; } }
+
+  /* ---- usability bars ---- */
+  .bar-rows{ display:flex; flex-direction:column; gap:16px; }
+  .bar-row{ display:grid; grid-template-columns:150px 1fr; gap:16px; align-items:center; }
+  .bar-row .label{ font-size:13.5px; font-weight:700; color:var(--ink-2); }
+  .bar-row .label small{ display:block; font-size:11px; font-weight:600; color:var(--ink-4); margin-top:1px; }
+  .bar-pair{ display:flex; flex-direction:column; gap:5px; }
+  .bar-track{ position:relative; height:14px; background:var(--line-soft); border-radius:7px; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:7px; }
+  .bar-fill.asis{ background:var(--ink-4); }
+  .bar-fill.tobe{ background:var(--brand); }
+  .bar-meta{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-3); font-weight:700; }
+  .legend{ display:flex; gap:16px; margin-bottom:18px; font-size:12px; color:var(--ink-3); }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .legend i.asis{ background:var(--ink-4); }
+  .legend i.tobe{ background:var(--brand); }
+  @media (max-width:560px){ .bar-row{ grid-template-columns:1fr; } }
+
+  /* ---- impact ---- */
+  .metric-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .metric-tags span{ font-size:11.5px; font-weight:700; color:var(--ink-2); background:var(--sunken); border:1px solid var(--line-soft); border-radius:999px; padding:5px 12px; }
+
+  .note{ margin-top:56px; padding:16px 18px; border-radius:14px; background:var(--sunken); border:1px solid var(--line-soft); font-size:12.5px; line-height:1.6; color:var(--ink-3); }
+  .note b{ color:var(--ink-2); }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="toc" id="toc">
+      <span class="toc-group">Intro</span>
+      <a href="#overview">개요</a>
+      <a href="#team">팀</a>
+      <a href="#process">진행 과정</a>
+      <span class="toc-group">Research</span>
+      <a href="#background">배경</a>
+      <a href="#target">타겟</a>
+      <a href="#problem">문제정의</a>
+      <a href="#goal">목표</a>
+      <span class="toc-group">Use Cases</span>
+      <a href="#uc1">UC1 타임라인</a>
+      <a href="#uc2">UC2 UX Writing</a>
+      <a href="#uc3">UC3 Alert Sheet</a>
+      <a href="#uc4">UC4 선생님 프로필</a>
+      <a href="#uc5">UC5 편의시설</a>
+      <span class="toc-group">Outcome</span>
+      <a href="#usability">사용성 테스트</a>
+      <a href="#impact">기대 효과</a>
+    </nav>
+
+    <main class="main">
+      <section id="overview" style="margin-top:0;">
+        <div class="brand-row">
+          <img class="icon" src="이미지/logo-icon.svg" alt="TicTocIsland 로고">
+          <img class="wordmark" src="이미지/logo-wordmark.png" alt="째깍섬">
+        </div>
+        <header class="hero">
+          <p class="eyebrow">TicTocIsland · Design Case Study</p>
+          <h1>째깍섬 상세페이지 UX 수정을 통한 재이용률(Retention) 개선 프로젝트</h1>
+          <p>상세페이지 전환에 영향을 줄 만한 5가지 개선 가설(진행 순서 타임라인, UX 라이팅, 재방문 알림, 선생님 프로필, 편의시설 안내)을 AS-IS/TO-BE 화면으로 만들어 실제 사용자 투표로 검증했습니다.</p>
+          <p>익명 투표 사이트를 배포해 실시간으로 결과를 1인 1표로 집계했습니다. 아래는 투표 종료 후의 최종 결과입니다.</p>
+        </header>
+
+        <div class="stat-row">
+          <div class="stat"><b>5</b><span>테스트 항목</span></div>
+          <div class="stat"><b>129</b><span>누적 투표 수 (UC별 중복 참여 가능)</span></div>
+          <div class="stat"><b>4 / 5</b><span>TO-BE(개선안) 채택</span></div>
+          <div class="stat"><b>8주</b><span>프로젝트 기간</span></div>
+        </div>
+      </section>
+
+      <section id="team">
+        <p class="section-eyebrow">Team</p>
+        <h2>프로젝트 참여 멤버</h2>
+        <p class="team-meta">미래내일 일경험(프로젝트형) With 커넥팅더닷츠 · IT/그로스 부서 3팀 · 팀명 "성장중독"</p>
+        <div class="team-grid">
+          <div class="member"><span class="role">팀장 및 총괄</span><p class="name">박정빈</p><p class="task">건국대학교</p></div>
+          <div class="member"><span class="role">데이터분석</span><p class="name">김은찬</p><p class="task">건국대학교</p></div>
+          <div class="member"><span class="role">디자인 설계</span><p class="name">박소희</p><p class="task">대진대학교</p></div>
+          <div class="member"><span class="role">디자인 시스템</span><p class="name">신윤서</p><p class="task">국민대학교</p></div>
+          <div class="member mentor"><span class="role">멘토</span><p class="name">양세비</p><p class="task">째깍섬 서비스기획팀</p></div>
+        </div>
+      </section>
+
+      <section id="process">
+        <p class="section-eyebrow">Process</p>
+        <h2>프로젝트 진행 과정</h2>
+        <div class="process-stats">
+          <div class="stat"><b>8주</b><span>대면 멘토링 · 커넥팅더닷츠 본사 방문 5시간</span></div>
+          <div class="stat"><b>16회</b><span>팀 회의 · 멘토링 전날, 당일 진행</span></div>
+          <div class="stat"><b>1회</b><span>현장 답사 · 째깍섬 잠실센터</span></div>
+        </div>
+        <div class="timeline">
+          <div class="phase"><b>1–2주</b><span>문제정의, 데이터 분석</span></div>
+          <div class="phase"><b>3–4주</b><span>고객 인터뷰, 레퍼런스 조사</span></div>
+          <div class="phase"><b>5–7주</b><span>디자인 시스템 구축, UX 설계</span></div>
+          <div class="phase"><b>8주</b><span>산출물 검토 및 A/B 테스트</span></div>
+        </div>
+      </section>
+
+      <section id="background">
+        <p class="section-eyebrow">Background</p>
+        <h2>조회수를 늘리는 접근만으로는 매출이 늘지 않았습니다</h2>
+        <p class="section-desc">째깍섬 방문 리뷰(네이버 블로그, 2023–2026)를 분석하고 보호자 심층 인터뷰 5명을 진행했습니다. <span style="white-space:nowrap;">가격·공간</span> 문제와 별개로 "무엇을 하는 프로그램인지 미리 알기 어렵다", "지난번과 똑같아 보여 재구매하지 않았다", "홍보 내용과 실제 수업이 달랐다"는 불만이 반복됐고, 세 유형 모두 콘텐츠 자체보다 예약 전 정보 제공과 기대 관리의 실패에서 비롯됐습니다.</p>
+
+        <p class="review-title">리뷰 아쉬운 점 분석 (최종 191건 · 2023-01-21~2026-07-11)</p>
+        <p class="review-meta">리뷰 하나에 여러 문제가 섞인 경우가 있어 비율 합이 100%를 넘을 수 있음</p>
+        <div class="review-rows">
+          <div class="review-row"><span class="rlabel">가격/비용 부담</span><div class="rtrack"><div class="rfill" style="width:24.7%"></div></div><span class="rpct">24.7%</span></div>
+          <div class="review-row"><span class="rlabel">직원 응대·케어 부족</span><div class="rtrack"><div class="rfill" style="width:16.7%"></div></div><span class="rpct">16.7%</span></div>
+          <div class="review-row"><span class="rlabel">편의시설/디테일 불편</span><div class="rtrack"><div class="rfill" style="width:14.9%"></div></div><span class="rpct">14.9%</span></div>
+          <div class="review-row"><span class="rlabel">연령·적합성 문제</span><div class="rtrack"><div class="rfill" style="width:13.8%"></div></div><span class="rpct">13.8%</span></div>
+          <div class="review-row"><span class="rlabel">지점 접근성·운영 문제</span><div class="rtrack"><div class="rfill" style="width:13.8%"></div></div><span class="rpct">13.8%</span></div>
+          <div class="review-row"><span class="rlabel">프로그램 내용 부실·단조</span><div class="rtrack"><div class="rfill" style="width:10.9%"></div></div><span class="rpct">10.9%</span></div>
+          <div class="review-row"><span class="rlabel">공간/시설 협소·낙후</span><div class="rtrack"><div class="rfill" style="width:9.8%"></div></div><span class="rpct">9.8%</span></div>
+          <div class="review-row"><span class="rlabel">기타(개별 특이사항)</span><div class="rtrack"><div class="rfill" style="width:8.6%"></div></div><span class="rpct">8.6%</span></div>
+        </div>
+
+        <ul class="insight-list">
+          <li>인터뷰 대상자 5명 중 4명이 부정적인 리뷰 위주로 확인한다고 답했습니다 (부정 후기가 더 현실적이고, 긍정 후기는 협찬일 수 있다는 인식).</li>
+          <li>5명 중 4명이 보호자 편의시설·서비스를 중요하게 생각했습니다 (대기공간, 카페/음식 메뉴, 안마의자 등).</li>
+          <li>모든 인터뷰 대상자가 혼잡도·아이 케어를 언급했고, 부모·아이가 분리되는 상황에서는 선생님의 신뢰할 수 있는 이력·자격증이 긍정적으로 작용한다고 답했습니다.</li>
+        </ul>
+
+        <div class="data-note"><b>데이터로 본 원인</b> · 6개월치(2~7월) 8개 센터 데이터를 함께 보면, 신규 유입이 많은 센터일수록 오히려 재방문율이 낮았고 반복 이용(돌봄형) 센터가 매출 상위권을 차지했습니다. 동일한 프로그램이라도 센터마다 재구매율 차이가 컸다는 점에서, 원인은 콘텐츠 자체가 아니라 "정보가 충분히 전달되지 않는 것"이라는 결론을 내렸습니다.</div>
+
+        <div class="whys">
+          <div class="why"><b>Why 1 · 왜 재방문이 낮을까</b><span>구매 결정자인 부모가 새 프로그램을 봐도 "또 같은 거네"라 지각하고 예약하지 않는다</span></div>
+          <div class="why"><b>Why 2 · 왜 같다고 지각할까</b><span>부모가 판단할 수 있는 정보가 주제·사진·가격뿐이라, 재료가 비슷하면 실제로 달라도 같아 보인다</span></div>
+          <div class="why"><b>Why 3 · 실제로는 뭐가 다를까</b><span>프로그램은 체험 방식에서 서로 다르다 — 아이는 주제가 아니라 몸으로 하는 행동으로 새로움을 판단하는 발달 특성이 있다</span></div>
+          <div class="why"><b>Why 4 · 왜 그 차이가 부모에게 전달되지 않을까</b><span>부모는 아이의 판단 기준을 대신 읽어줄 근거가 없다</span></div>
+          <div class="why final"><b>Why 5 · 왜 앱에 그 근거가 없을까</b><span>프로그램의 체험 방식·활동 흐름·결과물에 대한 정보가 상세페이지에 없기 때문이다 — 그래서 정보 설계로 이 문제를 풀기로 했습니다.</span></div>
+        </div>
+      </section>
+
+      <section id="target">
+        <p class="section-eyebrow">Target User</p>
+        <h2>누구를 위한 개선인가</h2>
+        <div class="target-meta">
+          <div class="stat"><b>1차 타겟</b><span>째깍섬 잠실센터 앱 가입 부모 중 재구매로 이어지지 않은 대상</span></div>
+          <div class="stat"><b>자녀 연령대</b><span>미취학 아동 중심 (인터뷰 표본 기준 39개월~7세)</span></div>
+        </div>
+        <div class="need-list">
+          <div class="need-row"><b>부정적 리뷰 우선 신뢰</b><span>5명 중 4명이 부정 후기를 먼저 확인 — "좋은 리뷰는 협찬일 수도 있잖아요"</span></div>
+          <div class="need-row"><b>부모 편의·분리 욕구</b><span>5명 중 4명이 편의시설을 중요시 — "부모가 쉴 공간이 없으면 두 번은 안 가요"</span></div>
+          <div class="need-row"><b>선생님 이력 = 신뢰 가산점</b><span>"유아교육과 학생이 많다는 글을 보고 갔다" — 부모·아이 분리형 서비스일수록 중요</span></div>
+          <div class="need-row"><b>사진만으로는 활동 파악 불가</b><span>"사진으로는 대략은 알겠는데, 정확히는 몰라요"</span></div>
+          <div class="need-row"><b>재방문 결정권자는 아이</b><span>"아이 반응이 제일 중요해요" — 부모는 아이의 판단 기준(체험 방식)을 대신 읽어줄 정보가 필요</span></div>
+        </div>
+      </section>
+
+      <section id="problem">
+        <p class="section-eyebrow">Problem &amp; Hypothesis</p>
+        <h2>문제 정의와 가설 설정</h2>
+        <p class="section-desc">인터뷰와 데이터에서 발견한 문제를 5개 세부 가설로 정리하고, 기본 품질(있으면 <span style="white-space:nowrap;">당연·없으면</span> 불만), 일원 품질(있는 만큼 만족), 매력 품질(있으면 감동) 세 그룹으로 우선순위를 나눴습니다.</p>
+        <div class="problem-list">
+          <div class="problem-row"><span class="uc-chip">UC1 · 기본품질</span><div class="txt"><b>프로그램 내용이 상세페이지에서 한눈에 안 보임</b><span>수업 시간을 세분화해 보여주면 활동 흐름을 몰라 예약을 포기하던 부모가 예약한다</span></div></div>
+          <div class="problem-row"><span class="uc-chip">UC2 · 일원품질</span><div class="txt"><b>카피가 감상 위주여서 회차 간 차이가 안 느껴짐</b><span>카피에 '아이 행동 동사'를 넣으면 회차 간 차이를 인식한다</span></div></div>
+          <div class="problem-row"><span class="uc-chip">UC3 · 일원품질</span><div class="txt"><b>이전과 다른 프로그램임을 알리지 못함</b><span>지난 회차의 차이를 명시하면 재방문 부모의 "같은 거네" 판단이 줄어든다</span></div></div>
+          <div class="problem-row"><span class="uc-chip">UC4 · 기본품질</span><div class="txt"><b>선생님에 대한 정보를 알 수 없음</b><span>선생님 이력·안전 교육 명시가 신뢰 가산점으로 작동한다</span></div></div>
+          <div class="problem-row"><span class="uc-chip">UC5 · 매력품질</span><div class="txt"><b>부모 입장에서의 편의시설을 알 수 없음</b><span>구비된 편의 시설을 초기 화면에서 한눈에 확인해 피로도를 줄여준다</span></div></div>
+        </div>
+      </section>
+
+      <section id="goal">
+        <p class="section-eyebrow">Project Goal</p>
+        <h2>프로그램 상세페이지 UX 수정으로 재구매율을 높입니다</h2>
+        <div class="goal-labels"><span>AS-IS</span><span>TO-BE</span></div>
+        <div class="goal-list">
+          <div class="goal-row">
+            <div class="as-is">활동 구성이 문장으로만 적혀 있어, 예약 전에 프로그램 내용을 파악하기 어렵다</div>
+            <div class="to-be">부모가 예약 전에 활동 구성을 한눈에 파악한다</div>
+          </div>
+          <div class="goal-row">
+            <div class="as-is">회차가 바뀌어도 화면상 차이가 드러나지 않아 "또 같은 거네"라 생각한다</div>
+            <div class="to-be">회차 간 차이가 화면에 드러나 "또 같은 거네" 판단이 줄어든다</div>
+          </div>
+          <div class="goal-row">
+            <div class="as-is">선생님에 대한 정보가 없어, 아이와 분리된 시간을 신뢰하기 어렵다</div>
+            <div class="to-be">보증된 선생님 이력으로, 아이와 분리되어도 신뢰할 수 있다</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="results">
+        <p class="section-eyebrow">Use Cases</p>
+        <h2>테스트 항목 · 최종 결과</h2>
+        <p class="section-desc">AS-IS/TO-BE 화면을 실제로 비교해보세요. 이미지를 누르면 전체 화면과 최종 투표 결과를 볼 수 있습니다.</p>
+        <div class="case-list">
+          <a class="case" id="uc1" href="uc1-result.html">
+            <div class="shot"><img src="이미지/thumbs/uc1-final.jpg" alt="UC1 AS-IS/TO-BE 비교 화면"></div>
+            <div class="body">
+              <div class="case-top"><span class="tag">UC1</span><span class="result">TO-BE 87%</span></div>
+              <h3>프로그램 타임라인</h3>
+              <p>상세페이지 내 프로그램 진행순서 나열 방식</p>
+              <div class="hyp"><b>가설 ·</b> 수업 시간을 세분화해 보여주면 활동 흐름을 몰라 예약을 포기하던 부모가 예약한다</div>
+              <p class="spec"><b>무엇을 바꾸나 ·</b> 50분 수업을 도입(5분)→활동1(20분)→활동2(20분)→마무리(5분) 4단계 시간표로 노출하고, 선생님 소개 영역을 하단에 추가</p>
+              <span class="go">전체 화면·결과 보기 <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </a>
+          <a class="case" id="uc2" href="uc2-result.html">
+            <div class="shot"><img src="이미지/thumbs/uc2-final.jpg" alt="UC2 AS-IS/TO-BE 비교 화면"></div>
+            <div class="body">
+              <div class="case-top"><span class="tag">UC2</span><span class="result">AS-IS 58%</span></div>
+              <h3>행동 동사 UX Writing</h3>
+              <p>화면 안내 문구 카피 톤 비교 방식</p>
+              <div class="hyp"><b>가설 ·</b> 카피에 '아이 행동 동사'를 넣으면 회차 간 차이를 인식한다</div>
+              <p class="spec"><b>무엇을 바꾸나 ·</b> 감상·분위기 동사(느껴보아요·만나보아요)를 아이의 몸이 하는 행동 동사(자르다·붓다·문지르다·쌓다)+결과물로 교체</p>
+              <span class="go">전체 화면·결과 보기 <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </a>
+          <a class="case" id="uc3" href="uc3-result.html">
+            <div class="shot"><img src="이미지/thumbs/uc3-final.jpg" alt="UC3 AS-IS/TO-BE 비교 화면"></div>
+            <div class="body">
+              <div class="case-top"><span class="tag">UC3</span><span class="result">TO-BE 87%</span></div>
+              <h3>Alert Bottom Sheet</h3>
+              <p>재방문 시 바텀시트 안내 노출 여부 비교 방식</p>
+              <div class="hyp"><b>가설 ·</b> 지난 회차의 차이를 명시하면 재방문 부모의 "같은 거네" 판단이 줄어든다</div>
+              <p class="spec"><b>무엇을 바꾸나 ·</b> 재방문 유저의 상세페이지 상단에 "지난 회차와 달라진 점" 요약 배너를 노출 (예: 만들기 중심 → 신체활동 중심)</p>
+              <span class="go">전체 화면·결과 보기 <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </a>
+          <a class="case" id="uc4" href="uc4-result.html">
+            <div class="shot"><img src="이미지/thumbs/uc4-final.jpg" alt="UC4 AS-IS/TO-BE 비교 화면"></div>
+            <div class="body">
+              <div class="case-top"><span class="tag">UC4</span><span class="result">TO-BE 100%</span></div>
+              <h3>째깍섬 선생님 프로필</h3>
+              <p>선생님 소개·자격증·능력치 배지 노출 여부 비교 방식</p>
+              <div class="hyp"><b>가설 ·</b> 선생님 이력·안전 교육 명시가 신뢰 가산점으로 작동한다</div>
+              <p class="spec"><b>무엇을 바꾸나 ·</b> 아동돌봄지도사 자격, 응급처치·안전교육 이수 여부를 체크 아이콘+텍스트로 노출하고, 선생님 프로필 카드를 추가</p>
+              <span class="go">전체 화면·결과 보기 <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </a>
+          <a class="case" id="uc5" href="uc5-result.html">
+            <div class="shot"><img src="이미지/thumbs/uc5-final.jpg" alt="UC5 AS-IS/TO-BE 비교 화면"></div>
+            <div class="body">
+              <div class="case-top"><span class="tag">UC5</span><span class="result">TO-BE 96%</span></div>
+              <h3>부모님 편의시설</h3>
+              <p>부모 편의시설 정보 아이콘 노출 여부 비교 방식</p>
+              <div class="hyp"><b>가설 ·</b> 구비된 편의 시설을 초기 화면에서 한눈에 확인해 피로도를 줄여준다</div>
+              <p class="spec"><b>무엇을 바꾸나 ·</b> 가족화장실·수유실·부모라운지·음료/카페 등 편의시설을 아이콘 배너로 상세페이지 상단에 노출</p>
+              <span class="go">전체 화면·결과 보기 <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section id="usability">
+        <p class="section-eyebrow">Usability Test</p>
+        <h2>사용자 만족도 조사</h2>
+        <p class="section-desc">온라인 투표 · 누적 129표 집계 (UC별 24~30표, 한 명이 여러 UC에 중복 투표할 수 있어 총 참여 인원과는 다릅니다)</p>
+        <div class="legend"><span><i class="asis"></i>AS-IS</span><span><i class="tobe"></i>TO-BE</span></div>
+        <div class="bar-rows">
+          <div class="bar-row">
+            <div class="label">UC1<small>프로그램 타임라인</small></div>
+            <div class="bar-pair">
+              <div class="bar-track"><div class="bar-fill asis" style="width:13%"></div></div>
+              <div class="bar-track"><div class="bar-fill tobe" style="width:87%"></div></div>
+              <div class="bar-meta"><span>AS-IS 13%</span><span>TO-BE 87%</span></div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="label">UC2<small>행동 동사 UX Writing</small></div>
+            <div class="bar-pair">
+              <div class="bar-track"><div class="bar-fill asis" style="width:58%"></div></div>
+              <div class="bar-track"><div class="bar-fill tobe" style="width:42%"></div></div>
+              <div class="bar-meta"><span>AS-IS 58%</span><span>TO-BE 42%</span></div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="label">UC3<small>Alert Bottom Sheet</small></div>
+            <div class="bar-pair">
+              <div class="bar-track"><div class="bar-fill asis" style="width:13%"></div></div>
+              <div class="bar-track"><div class="bar-fill tobe" style="width:87%"></div></div>
+              <div class="bar-meta"><span>AS-IS 13%</span><span>TO-BE 87%</span></div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="label">UC4<small>선생님 프로필 이력</small></div>
+            <div class="bar-pair">
+              <div class="bar-track"><div class="bar-fill asis" style="width:0%"></div></div>
+              <div class="bar-track"><div class="bar-fill tobe" style="width:100%"></div></div>
+              <div class="bar-meta"><span>AS-IS 0%</span><span>TO-BE 100%</span></div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="label">UC5<small>부모님 편의시설</small></div>
+            <div class="bar-pair">
+              <div class="bar-track"><div class="bar-fill asis" style="width:4%"></div></div>
+              <div class="bar-track"><div class="bar-fill tobe" style="width:96%"></div></div>
+              <div class="bar-meta"><span>AS-IS 4%</span><span>TO-BE 96%</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="impact">
+        <p class="section-eyebrow">Expected Impact</p>
+        <h2>기대 효과</h2>
+        <p class="section-desc">이번 개선의 핵심 목표는 상세페이지 UX를 통한 재구매율(Retention) 개선입니다. 정량적인 사내 <span style="white-space:nowrap;">매출·재구매율</span> 수치는 민감 정보라 공개 범위에서 제외했고, 대신 이후 추적하기로 한 지표만 남겨둡니다.</p>
+        <div class="metric-tags">
+          <span>핵심 지표 · 재구매율(Retention)</span>
+          <span>2차 지표 · 상세 → 예약 클릭률</span>
+          <span>2차 지표 · 탐색 후 미구매 이탈률</span>
+          <span>2차 지표 · 상세페이지 탐색 시간</span>
+          <span>Counter metric · 객단가</span>
+          <span>Counter metric · "안내와 실제가 달랐다" 언급률</span>
+        </div>
+      </section>
+
+      <div class="note">
+        <b>참고</b> · 투표는 종료되었으며 위 결과는 최종 집계 값입니다. UC2를 제외한 4개 항목에서 TO-BE(개선안)가 더 많은 선택을 받아 상세페이지에 반영했습니다.
+      </div>
+    </main>
+  </div>
+
+  <script>
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+    var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+    if (!('IntersectionObserver' in window) || !sections.length) return;
+    var byId = {};
+    links.forEach(function(a){ byId[a.getAttribute('href').slice(1)] = a; });
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (!entry.isIntersecting) return;
+        links.forEach(function(a){ a.classList.remove('active'); });
+        var link = byId[entry.target.id];
+        if (link) link.classList.add('active');
+      });
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    sections.forEach(function(s){ observer.observe(s); });
+  })();
+  </script>
+</body>
+</html>
